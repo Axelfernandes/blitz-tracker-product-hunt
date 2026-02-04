@@ -52,7 +52,11 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
     const json = await res.json();
     if (json.errors) {
       console.error("PH API Errors:", json.errors);
-      return [];
+      throw new Error(`PH API Errors: ${JSON.stringify(json.errors)}`);
+    }
+
+    if (!json.data || !json.data.posts) {
+      throw new Error(`PH API Unexpected Response: ${JSON.stringify(json)}`);
     }
 
     return json.data.posts.edges.map((edge: any) => ({

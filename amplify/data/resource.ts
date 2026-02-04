@@ -11,8 +11,7 @@ const schema = a.schema({
       launchDate: a.datetime(),
       upvotes: a.integer(),
       score: a.float(), // Overall blitz score
-      // Individual scores stored as JSON for simplicity, or could be individual fields.
-      // Let's use individual fields for better querying/typing if needed, but JSON is flexible.
+      // Individual scores stored as individual fields.
       speedScore: a.float(),
       marketScore: a.float(),
       pmfScore: a.float(),
@@ -22,7 +21,8 @@ const schema = a.schema({
       scoreExplanation: a.string(),
     })
     .authorization((allow) => [
-      allow.publicApiKey().to(['read']),
+      // Allow public creation/read for the sync route (apiKey)
+      allow.publicApiKey().to(['read', 'create']),
       allow.authenticated().to(['read', 'create', 'update', 'delete']),
     ]),
 });

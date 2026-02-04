@@ -24,7 +24,7 @@ export async function scoreProduct(
     return null;
   }
 
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `
     Score this Product Hunt launch on Blitzscaling (Reid Hoffman) principles.
@@ -63,8 +63,8 @@ export async function scoreProduct(
     const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     return JSON.parse(cleanText) as BlitzScore;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gemini Scoring Error:", error);
-    return null;
+    throw new Error(`Gemini Scoring Error: ${error.message || JSON.stringify(error)}`);
   }
 }
