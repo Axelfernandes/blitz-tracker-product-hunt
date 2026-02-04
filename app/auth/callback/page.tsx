@@ -1,4 +1,7 @@
+'use client';
+
 import { Suspense, useEffect, useState } from 'react';
+
 import { useSearchParams, useRouter } from 'next/navigation';
 import { GlassCard } from '@/components/GlassCard';
 import { Rocket, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
