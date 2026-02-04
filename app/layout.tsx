@@ -3,9 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Amplify } from 'aws-amplify';
 import outputs from '@/amplify_outputs.json';
+import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 
-// Configure Amplify at the top level to ensure it's ready for all client components
+// Configure Amplify for SSR (Server Side)
 Amplify.configure(outputs, { ssr: true });
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-[#0a0a0c] text-white min-h-screen selection:bg-cyan-500/30`}>
+        <ConfigureAmplifyClientSide />
         <div className="fixed inset-0 -z-10 overflow-hidden">
+
 
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-[10%] right-[-5%] w-[35%] h-[35%] bg-purple-600/20 rounded-full blur-[120px]" />
