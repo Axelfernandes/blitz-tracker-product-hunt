@@ -8,9 +8,11 @@ export interface BlitzScore {
   pmfScore: number;
   networkScore: number;
   growthScore: number;
+  uncertaintyScore: number;
   overallScore: number;
   explanation: string;
 }
+
 
 export async function scoreProduct(
   name: string,
@@ -30,12 +32,13 @@ export async function scoreProduct(
     Tagline: ${tagline}
     Description: ${description}
 
-    Evaluate on 0-10 scale (0=low, 10=high) for these 5 criteria:
+    Evaluate on 0-10 scale (0=low, 10=high) for these 6 criteria:
     1. Speed over efficiency in uncertainty
     2. Huge market potential
     3. Strong Product-Market Fit (PMF)
     4. Network effects
     5. Hyper-growth potential
+    6. Management of Risk & Uncertainty
 
     Provide the output strictly as a JSON object with the following keys:
     {
@@ -44,19 +47,21 @@ export async function scoreProduct(
       "pmfScore": number,
       "networkScore": number,
       "growthScore": number,
+      "uncertaintyScore": number,
       "overallScore": number,
       "explanation": "1-sentence explanation"
     }
+
   `;
 
   try {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
-    
+
     // Clean up markdown code blocks if present
     const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    
+
     return JSON.parse(cleanText) as BlitzScore;
   } catch (error) {
     console.error("Gemini Scoring Error:", error);

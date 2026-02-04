@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "./GlassCard";
-import { X, Zap, Globe, Target, Share2, Rocket, ExternalLink } from "lucide-react";
+import { X, Zap, Globe, Target, Share2, Rocket, ExternalLink, AlertCircle } from "lucide-react";
+
 import { cn, getScoreColor } from "@/lib/utils";
 import { ScoreChart } from "./ScoreChart";
 
@@ -21,6 +22,7 @@ export function ScoreModal({ isOpen, onClose, product, loading }: ScoreModalProp
     pmf: product.pmfScore || 0,
     network: product.networkScore || 0,
     growth: product.growthScore || 0,
+    uncertainty: product.uncertaintyScore || 0,
     overall: product.score || 0,
     explanation: product.scoreExplanation || "AI analysis pending...",
   };
@@ -31,7 +33,10 @@ export function ScoreModal({ isOpen, onClose, product, loading }: ScoreModalProp
     { name: "Product-Market Fit", score: scores.pmf, icon: Target, color: "text-green-400", bgColor: "bg-green-500" },
     { name: "Network Effects", score: scores.network, icon: Share2, color: "text-purple-400", bgColor: "bg-purple-500" },
     { name: "Hyper-Growth", score: scores.growth, icon: Rocket, color: "text-red-400", bgColor: "bg-red-500" },
+    { name: "Risk & Uncertainty", score: scores.uncertainty, icon: AlertCircle, color: "text-cyan-400", bgColor: "bg-cyan-500" },
   ];
+
+
 
   // Calculate Product Hunt URL
   const phUrl = product.phId ? `https://www.producthunt.com/posts/${product.phId}` : null;
