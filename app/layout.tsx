@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
 import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 
 // Configure Amplify for SSR (Server Side)
-Amplify.configure(outputs, { ssr: true });
+try {
+  const outputs = require('@/amplify_outputs.json');
+  Amplify.configure(outputs, { ssr: true });
+} catch (e) {
+  console.warn("Amplify SSR configuration skipped: amplify_outputs.json not found.");
+}
 
 
 const inter = Inter({ subsets: ["latin"] });
