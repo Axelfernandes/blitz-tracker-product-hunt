@@ -1,11 +1,14 @@
 'use client';
 
 import { Amplify } from 'aws-amplify';
-import outputs from '@/amplify_outputs.json';
-
-Amplify.configure(outputs);
 
 export default function ConfigureAmplifyClientSide() {
+  try {
+    const outputs = require('@/amplify_outputs.json');
+    Amplify.configure(outputs);
+  } catch (e) {
+    console.error("Amplify configuration missing or invalid. Check your build environment.", e);
+  }
   return null;
 }
 

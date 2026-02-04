@@ -5,25 +5,36 @@ import { generateClient } from 'aws-amplify/data';
 import { Amplify } from 'aws-amplify';
 import type { Schema } from '@/amplify/data/resource';
 
-// Configure Amplify
-let outputs;
-try {
-  outputs = require('@/amplify_outputs.json');
-  Amplify.configure(outputs);
-} catch (e) {
-  console.warn("Amplify outputs not found.");
-}
-
-const client = generateClient<Schema>({ authMode: 'apiKey' });
-
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  if (!process.env.PH_TOKEN || !process.env.GEMINI_API_KEY) {
-    return NextResponse.json({ error: "Missing environment variables" }, { status: 500 });
+  const logs: string[] = [];
+
+  // 1. Check Environment Variables
+  if (!process.env.PH_TOKEN) {
+    return NextResponse.json({ error: "PH_TOKEN is missing in production environment variables" }, { status: 500 });
+  }
+  if (!process.env.GEMINI_API_KEY) {
+    return NextResponse.json({ error: "GEMINI_API_KEY is missing in production environment variables" }, { status: 500 });
   }
 
-  const logs: string[] = [];
+  // 2. Configure Amplify
+  let outputs;
+  try {
+    outputs = require('@/amplify_outputs.json');
+    Amplify.configure(outputs);
+    logs.push("Amplify configured successfully with outputs.");
+  } catch (e: any) {
+    logs.push("WARNING: amplify_outputs.json not found. Using fallback config if available.");
+    // Optional: add fallback logic here if user provides standard Amplify env vars
+    return NextResponse.json({
+      error: "Amplify configuration (amplify_outputs.json) is missing on the production server. Make sure this file is included in your build or deployment.",
+      detailedError: e.message
+    }, { status: 500 });
+  }
+
+  const client = generateClient<Schema>({ authMode: 'apiKey' });
+
   try {
     const products = await fetchDailyProducts();
     const results = [];
