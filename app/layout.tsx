@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
+import { Amplify } from 'aws-amplify';
+import outputs from '@/amplify_outputs.json';
+
+// Configure Amplify at the top level to ensure it's ready for all client components
+Amplify.configure(outputs, { ssr: true });
 
 const inter = Inter({ subsets: ["latin"] });
+
 
 export const metadata: Metadata = {
   title: "BlitzTracker | AI Product Hunt Analysis",
@@ -19,7 +24,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased bg-[#0a0a0c] text-white min-h-screen selection:bg-cyan-500/30`}>
-        <ConfigureAmplifyClientSide />
         <div className="fixed inset-0 -z-10 overflow-hidden">
 
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]" />
