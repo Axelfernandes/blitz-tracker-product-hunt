@@ -40,7 +40,7 @@ export async function GET() {
 
       // 2. Score with Gemini
       const score = await scoreProduct(p.name, p.tagline, p.description || "");
-      
+
       if (score) {
         // 3. Save to DynamoDB
         await client.models.Product.create({
@@ -50,18 +50,20 @@ export async function GET() {
           description: p.description,
           thumbnailUrl: p.thumbnail.url,
           launchDate: p.createdAt,
-          upvotes: p.votedUpByCount,
+          upvotes: p.votesCount,
+
           score: score.overallScore,
           speedScore: score.speedScore,
           marketScore: score.marketScore,
           pmfScore: score.pmfScore,
           networkScore: score.networkScore,
           growthScore: score.growthScore,
-          uncertaintyScore: score.speedScore, // Mapping uncertainty to speed for this model
+          uncertaintyScore: score.uncertaintyScore,
           scoreExplanation: score.explanation
+
         });
         results.push({ name: p.name, status: 'scored' });
-        
+
         // Small delay to respect Gemini free tier RPM
         await new Promise(r => setTimeout(r, 4000));
       }

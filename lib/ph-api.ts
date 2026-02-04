@@ -6,7 +6,7 @@ export interface PHProduct {
   thumbnail: {
     url: string;
   };
-  votedUpByCount: number;
+  votesCount: number;
   createdAt: string;
   url: string;
 }
@@ -25,7 +25,7 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
             thumbnail {
               url
             }
-            votedUpByCount
+            votesCount
             createdAt
           }
         }
@@ -55,7 +55,11 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
       return [];
     }
 
-    return json.data.posts.edges.map((edge: any) => edge.node);
+    return json.data.posts.edges.map((edge: any) => ({
+      ...edge.node,
+      votesCount: edge.node.votesCount
+    }));
+
   } catch (error) {
     console.error("Failed to fetch PH products:", error);
     return [];
