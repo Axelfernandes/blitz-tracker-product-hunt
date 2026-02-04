@@ -43,6 +43,6 @@ next-env.d.ts
 # setup docs
 AMPLIFY_SETUP.md
 setup-amplify.sh
-amplify_outputs.json
+# amplify_outputs.json
 .amplify/
 
