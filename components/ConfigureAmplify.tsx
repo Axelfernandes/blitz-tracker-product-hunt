@@ -8,3 +8,5 @@ Amplify.configure(outputs);
 export default function ConfigureAmplifyClientSide() {
   return null;
 }
+
+

@@ -15,7 +15,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'producthunt.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
+
   },
 };
 

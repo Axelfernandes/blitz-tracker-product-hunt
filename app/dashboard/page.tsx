@@ -12,6 +12,10 @@ import { Rocket, RefreshCcw, LogOut, TrendingUp, Package, Award, Zap } from 'luc
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { cn, filterBySearch, filterByScoreRange, sortProducts } from '@/lib/utils';
+import { MOCK_PRODUCTS } from '@/lib/mock-data';
+
+// Determine if we are in dev/mock mode
+const IS_DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 
 const client = generateClient<Schema>();
 
@@ -28,6 +32,12 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
+    if (IS_DEV_MODE) {
+      setProducts(MOCK_PRODUCTS);
+      setLoading(false);
+      return;
+    }
+
     fetchProducts();
     const sub = client.models.Product.observeQuery().subscribe({
       next: ({ items }) => {
@@ -38,6 +48,10 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
       },
       error: (err) => {
         console.error('Observe error:', err);
+        // Fallback to mock data in case of Amplify error during dev
+        if (process.env.NODE_ENV === 'development') {
+          setProducts(MOCK_PRODUCTS);
+        }
         setLoading(false);
       }
     });
@@ -45,6 +59,7 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
   }, []);
 
   async function fetchProducts() {
+    if (IS_DEV_MODE) return;
     try {
       const { data: items } = await client.models.Product.list();
       setProducts(items.sort((a, b) =>
@@ -52,12 +67,19 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
       ));
     } catch (err) {
       console.error('Error fetching products', err);
+      if (process.env.NODE_ENV === 'development') {
+        setProducts(MOCK_PRODUCTS);
+      }
     } finally {
       setLoading(false);
     }
   }
 
   async function handleSync() {
+    if (IS_DEV_MODE) {
+      alert("Sync is disabled in Mock/Dev mode.");
+      return;
+    }
     setSyncing(true);
     try {
       const res = await fetch('/api/cron/sync-ph', { method: 'POST' });
@@ -112,6 +134,11 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
             </span>
           </h1>
           <p className="text-white/50 mt-2 font-medium">Monitoring the next wave of hyper-growth startups.</p>
+          {IS_DEV_MODE && (
+            <div className="mt-2 inline-block px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
+              <span className="text-xs font-bold text-yellow-500 uppercase tracking-wider">Development Mode / Mock Data</span>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-4">
@@ -123,13 +150,15 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
             <RefreshCcw className={cn("w-4 h-4", syncing && "animate-spin")} />
             {syncing ? 'Syncing...' : 'Sync PH'}
           </button>
-          <button
-            onClick={signOut}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
+          {signOut && (
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          )}
         </div>
       </header>
 
@@ -226,5 +255,9 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
   );
 }
 
-export default withAuthenticator(Dashboard);
+// Conditionally wrap with authenticator or return component directly
+const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
+
+export default AuthenticatedDashboard;
+
 
