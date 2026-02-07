@@ -36,10 +36,6 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
             className="object-cover group-hover:scale-110 transition-transform duration-300"
           />
         </div>
-        <div className="flex items-center gap-1 text-white/80 bg-white/5 px-3 py-1.5 rounded-full text-sm border border-white/10 group-hover:border-white/20 transition-colors">
-          <ArrowBigUp className="w-4 h-4" />
-          <span className="font-semibold">{product.upvotes || product.votedUpByCount}</span>
-        </div>
       </div>
 
       <div className="flex-1">
@@ -52,12 +48,18 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
       </div>
 
       <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5">
-        <div className="flex items-center gap-2 text-xs text-white/50">
-          <Calendar className="w-3 h-3" />
-          <span>{format(new Date(product.launchDate || product.createdAt), "MMM d, yyyy")}</span>
+        <div className="flex items-center gap-4 text-xs text-white/50">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5" />
+            <span>{format(new Date(product.launchDate || product.createdAt), "MMM d")}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-white/70">
+            <ArrowBigUp className="w-3.5 h-3.5" />
+            <span>{product.upvotes || product.votedUpByCount}</span>
+          </div>
         </div>
         {hasScore && (
-          <div className="flex items-center gap-1 text-xs text-cyan-400 font-semibold">
+          <div className="flex items-center gap-1 text-xs text-cyan-400 font-semibold group-hover:underline decoration-cyan-400/50 underline-offset-4">
             <TrendingUp className="w-3 h-3" />
             <span>View Score</span>
           </div>

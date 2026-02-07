@@ -23,7 +23,6 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,22 +74,6 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
     }
   }
 
-  async function handleSync() {
-    if (IS_DEV_MODE) {
-      alert("Sync is disabled in Mock/Dev mode.");
-      return;
-    }
-    setSyncing(true);
-    try {
-      const res = await fetch('/api/cron/sync-ph', { method: 'POST' });
-      if (!res.ok) throw new Error('Sync failed');
-    } catch (err) {
-      console.error('Sync failed', err);
-      alert('Sync failed. Check console for details.');
-    } finally {
-      setSyncing(false);
-    }
-  }
 
   // Apply filters and sorting
   const filteredProducts = useMemo(() => {
@@ -141,28 +124,21 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
           )}
         </div>
 
-        <div className="flex gap-4">
+        {signOut && (
           <button
-            onClick={handleSync}
-            disabled={syncing}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all disabled:opacity-50"
+            onClick={signOut}
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
           >
-            <RefreshCcw className={cn("w-4 h-4", syncing && "animate-spin")} />
-            {syncing ? 'Syncing...' : 'Sync PH'}
+            <LogOut className="w-4 h-4" />
+            Logout
           </button>
-          {signOut && (
-            <button
-              onClick={signOut}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
-            </button>
-          )}
-        </div>
-      </header>
+        )}
+      </div>
+    </header>
 
-      {loading ? (
+      {
+    {
+      loading ? (
         <div className="flex flex-col items-center justify-center py-40">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mb-4"></div>
           <div className="text-white/30 text-xl font-bold">Scanning the frontier...</div>
@@ -171,15 +147,7 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
         <>
           {products.length === 0 ? (
             <GlassCard className="text-center py-20">
-              <p className="text-xl text-white/50 mb-6">No products found. Hit Sync to fetch today's launches and run AI scoring.</p>
-              <button
-                onClick={handleSync}
-                disabled={syncing}
-                className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyan-500 text-black font-bold hover:bg-cyan-400 transition-all disabled:opacity-50"
-              >
-                <RefreshCcw className={cn("w-5 h-5", syncing && "animate-spin")} />
-                Initialize Sync
-              </button>
+              <p className="text-xl text-white/50 mb-6">No products found. The automated sync runs every 6 hours.</p>
             </GlassCard>
           ) : (
             <>
@@ -244,20 +212,21 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
             </>
           )}
         </>
-      )}
+      )
+    }
 
-      <ScoreModal
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        product={selectedProduct}
-      />
-    </main>
+    <ScoreModal
+      isOpen={!!selectedProduct}
+      onClose={() => setSelectedProduct(null)}
+      product={selectedProduct}
+    />
+    </main >
   );
-}
+  }
 
-// Conditionally wrap with authenticator or return component directly
-const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
+  // Conditionally wrap with authenticator or return component directly
+  const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
 
-export default AuthenticatedDashboard;
+  export default AuthenticatedDashboard;
 
 
