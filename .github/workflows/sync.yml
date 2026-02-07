@@ -1,0 +1,16 @@
+name: Product Hunt Sync Cron
+
+on:
+  schedule:
+    # Run every 6 hours (at minute 0 past hour 0, 6, 12, and 18)
+    - cron: "0 0,6,12,18 * * *"
+  workflow_dispatch: # Allow manual trigger from GitHub Actions tab
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Sync
+        run: |
+          echo "Triggering sync..."
+          curl -X POST "https://producthunt.forgify.io/api/cron/sync-ph?key=${{ secrets.CRON_SECRET }}"
