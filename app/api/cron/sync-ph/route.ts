@@ -71,13 +71,10 @@ export async function GET(request: NextRequest) {
     }
 
     // 3. Batch Existence Check
-    // optimization: get all existing IDs first to avoid N database calls
-    // Note: In a massive scale app, we'd filter by the specific IDs we just fetched,
-    // but here fetching all (or a large limit) is fine for now, or we rely on the specific check if listing is too big.
-    // For now, let's fetch products created in the last 2 days or just list plenty.
-    // Actually, list() has default limit 100. Let's try to get enough to cover overlaps.
+    console.log("Listing existing products...");
     const { data: existingData } = await client.models.Product.list({ limit: 1000 });
     const existingIds = new Set(existingData.map(p => p.phId));
+    console.log(`Found ${existingIds.size} existing products.`);
 
     // Filter down to only NEW products
     const newProducts = products.filter(p => !existingIds.has(p.id));
@@ -85,20 +82,26 @@ export async function GET(request: NextRequest) {
 
     logs.push(`Skipped ${alreadyExistsCount} existing products.`);
     logs.push(`Processing ${newProducts.length} new products...`);
+    console.log(`Processing ${newProducts.length} new products.`);
 
     for (const p of newProducts) {
       // Timeout check
-      if (Date.now() - startTime > MAX_DURATION_MS) {
-        logs.push("WARNING: Time limit reached. Stopping partial sync.");
+      const elapsed = Date.now() - startTime;
+      if (elapsed > MAX_DURATION_MS) {
+        const msg = `WARNING: Time limit reached (${elapsed}ms). Stopping partial sync.`;
+        console.log(msg);
+        logs.push(msg);
         break;
       }
 
       try {
         // Score
+        console.log(`Scoring ${p.name}...`);
         const score = await scoreProduct(p.name, p.tagline, p.description || "");
 
         if (score) {
           // Save
+          console.log(`Saving ${p.name}...`);
           const { data: created, errors: createErrors } = await client.models.Product.create({
             phId: p.id,
             name: p.name,
@@ -125,9 +128,11 @@ export async function GET(request: NextRequest) {
           }
 
           // Delay for Gemini free tier RPM (only for new saves)
-          await new Promise(r => setTimeout(r, 4000));
+          // REDUCED DELAY to help with timeouts
+          await new Promise(r => setTimeout(r, 2000));
         }
       } catch (err: any) {
+        console.error(`Error processing ${p.name}:`, err);
         logs.push(`Error processing ${p.name}: ${err.message}`);
       }
     }
