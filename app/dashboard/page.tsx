@@ -8,9 +8,7 @@ import { ScoreModal } from '@/components/ScoreModal';
 import { GlassCard } from '@/components/GlassCard';
 import { StatsCard } from '@/components/StatsCard';
 import { FilterControls } from '@/components/FilterControls';
-import { Rocket, RefreshCcw, LogOut, TrendingUp, Package, Award, Zap } from 'lucide-react';
-import { withAuthenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import { Rocket, RefreshCcw, TrendingUp, Package, Award, Zap } from 'lucide-react';
 import { cn, filterBySearch, filterByScoreRange, sortProducts } from '@/lib/utils';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
 
@@ -19,7 +17,7 @@ const IS_DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 
 const client = generateClient<Schema>();
 
-function Dashboard({ signOut }: { signOut?: () => void }) {
+function Dashboard() {
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -124,15 +122,6 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
           )}
         </div>
 
-        {signOut && (
-          <button
-            onClick={signOut}
-            className="flex items-center gap-2 px-6 py-3 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
-        )}
       </header>
 
       {
