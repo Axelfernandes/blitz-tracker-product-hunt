@@ -8,9 +8,11 @@ import type { Schema } from '@/amplify/data/resource';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  console.log("Sync route started.");
   const logs: string[] = [];
   const MAX_DURATION_MS = 20 * 1000; // 20 seconds safety buffer (CloudFront limit is ~30s)
   const startTime = Date.now();
+  console.log(`Sync started at ${startTime}`);
 
   // 1. Check CRON_SECRET (Security)
   // Allow passing key via header "Authorization: Bearer <key>" or via query param "?key=<key>"
@@ -42,17 +44,22 @@ export async function GET(request: NextRequest) {
 
   // 1b. Check Dependencies
   if (!process.env.PH_TOKEN) {
+    console.error("PH_TOKEN is missing");
     return NextResponse.json({ error: "PH_TOKEN is missing" }, { status: 500 });
   }
   if (!process.env.GEMINI_API_KEY) {
+    console.error("GEMINI_API_KEY is missing");
     return NextResponse.json({ error: "GEMINI_API_KEY is missing" }, { status: 500 });
   }
 
   // 2. Configure Amplify
   try {
+    console.log("Configuring Amplify...");
     const outputs = require('@/amplify_outputs.json');
     Amplify.configure(outputs);
+    console.log("Amplify configured.");
   } catch (e: any) {
+    console.error("Amplify configuration failed:", e);
     return NextResponse.json({
       error: "Amplify configuration missing.",
       detailedError: e.message
