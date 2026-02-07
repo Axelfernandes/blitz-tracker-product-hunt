@@ -92,8 +92,8 @@ export async function GET(request: NextRequest) {
     console.log(`Found ${newProducts.length} new products to process.`);
 
     // --- BATCH PROCESSING START ---
-    // Only process the first 5 products to avoid timeouts.
-    const BATCH_SIZE = 5;
+    // Only process the first 3 products to avoid timeouts.
+    const BATCH_SIZE = 3;
     const batch = newProducts.slice(0, BATCH_SIZE);
     const remainingCount = Math.max(0, newProducts.length - BATCH_SIZE);
 
@@ -142,10 +142,6 @@ export async function GET(request: NextRequest) {
             results.push({ name: p.name, status: 'scored' });
             logs.push(`Saved ${p.name}`);
           }
-
-          // Delay for Gemini free tier RPM (only for new saves)
-          // 2 seconds is safe since we only do 5 items max = 10s total delay + processing time
-          await new Promise(r => setTimeout(r, 2000));
         }
       } catch (err: any) {
         console.error(`Error processing ${p.name}:`, err);
