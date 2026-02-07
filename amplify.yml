@@ -18,6 +18,7 @@ frontend:
       commands:
         - echo "PH_TOKEN=$PH_TOKEN" >> .env.production
         - echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env.production
+        - echo "CRON_SECRET=$CRON_SECRET" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
