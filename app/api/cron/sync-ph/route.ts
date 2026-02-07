@@ -9,26 +9,24 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   const logs: string[] = [];
+  const MAX_DURATION_MS = 50 * 1000; // 50 seconds safety buffer
+  const startTime = Date.now();
 
   // 1. Check Environment Variables
   if (!process.env.PH_TOKEN) {
-    return NextResponse.json({ error: "PH_TOKEN is missing in production environment variables" }, { status: 500 });
+    return NextResponse.json({ error: "PH_TOKEN is missing" }, { status: 500 });
   }
   if (!process.env.GEMINI_API_KEY) {
-    return NextResponse.json({ error: "GEMINI_API_KEY is missing in production environment variables" }, { status: 500 });
+    return NextResponse.json({ error: "GEMINI_API_KEY is missing" }, { status: 500 });
   }
 
   // 2. Configure Amplify
-  let outputs;
   try {
-    outputs = require('@/amplify_outputs.json');
+    const outputs = require('@/amplify_outputs.json');
     Amplify.configure(outputs);
-    logs.push("Amplify configured successfully with outputs.");
   } catch (e: any) {
-    logs.push("WARNING: amplify_outputs.json not found. Using fallback config if available.");
-    // Optional: add fallback logic here if user provides standard Amplify env vars
     return NextResponse.json({
-      error: "Amplify configuration (amplify_outputs.json) is missing on the production server. Make sure this file is included in your build or deployment.",
+      error: "Amplify configuration missing.",
       detailedError: e.message
     }, { status: 500 });
   }
@@ -38,33 +36,41 @@ export async function GET() {
   try {
     const products = await fetchDailyProducts();
     const results = [];
-    logs.push(`Fetched ${products.length} products`);
+    logs.push(`Fetched ${products.length} products from Product Hunt`);
 
     if (products.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: "PH API returned 0 products.",
-        logs
-      });
+      return NextResponse.json({ success: true, message: "No products found.", logs });
     }
 
-    for (const p of products) {
+    // 3. Batch Existence Check
+    // optimization: get all existing IDs first to avoid N database calls
+    // Note: In a massive scale app, we'd filter by the specific IDs we just fetched,
+    // but here fetching all (or a large limit) is fine for now, or we rely on the specific check if listing is too big.
+    // For now, let's fetch products created in the last 2 days or just list plenty.
+    // Actually, list() has default limit 100. Let's try to get enough to cover overlaps.
+    const { data: existingData } = await client.models.Product.list({ limit: 1000 });
+    const existingIds = new Set(existingData.map(p => p.phId));
+
+    // Filter down to only NEW products
+    const newProducts = products.filter(p => !existingIds.has(p.id));
+    const alreadyExistsCount = products.length - newProducts.length;
+
+    logs.push(`Skipped ${alreadyExistsCount} existing products.`);
+    logs.push(`Processing ${newProducts.length} new products...`);
+
+    for (const p of newProducts) {
+      // Timeout check
+      if (Date.now() - startTime > MAX_DURATION_MS) {
+        logs.push("WARNING: Time limit reached. Stopping partial sync.");
+        break;
+      }
+
       try {
-        // 1. Check if exists
-        const { data: existing } = await client.models.Product.list({
-          filter: { phId: { eq: p.id } }
-        });
-
-        if (existing && existing.length > 0) {
-          results.push({ name: p.name, status: 'skipped (exists)' });
-          continue;
-        }
-
-        // 2. Score
+        // Score
         const score = await scoreProduct(p.name, p.tagline, p.description || "");
 
         if (score) {
-          // 3. Save
+          // Save
           const { data: created, errors: createErrors } = await client.models.Product.create({
             phId: p.id,
             name: p.name,
@@ -87,10 +93,10 @@ export async function GET() {
             logs.push(`Save failed for ${p.name}: ${JSON.stringify(createErrors)}`);
           } else {
             results.push({ name: p.name, status: 'scored' });
-            logs.push(`Saved ${p.name} (ID: ${created?.id})`);
+            logs.push(`Saved ${p.name}`);
           }
 
-          // Delay for Gemini free tier RPM
+          // Delay for Gemini free tier RPM (only for new saves)
           await new Promise(r => setTimeout(r, 4000));
         }
       } catch (err: any) {
@@ -100,7 +106,8 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      processedCount: results.length,
+      processed: results.length,
+      skipped: alreadyExistsCount,
       logs
     });
   } catch (error: any) {

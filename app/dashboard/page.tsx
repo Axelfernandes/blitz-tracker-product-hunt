@@ -61,7 +61,7 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
   async function fetchProducts() {
     if (IS_DEV_MODE) return;
     try {
-      const { data: items } = await client.models.Product.list();
+      const { data: items } = await client.models.Product.list({ limit: 500 });
       setProducts(items.sort((a, b) =>
         new Date(b.launchDate || '').getTime() - new Date(a.launchDate || '').getTime()
       ));
