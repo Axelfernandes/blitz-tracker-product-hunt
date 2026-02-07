@@ -209,19 +209,21 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
                 )}
               </>
             )}
+          </>
+        )}
 
-            <ScoreModal
-              isOpen={!!selectedProduct}
-              onClose={() => setSelectedProduct(null)}
-              product={selectedProduct}
-            />
-          </main >
-      );
-  }
+      <ScoreModal
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        product={selectedProduct}
+      />
+    </main >
+  );
+}
 
-      // Conditionally wrap with authenticator or return component directly
-      const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
+// Conditionally wrap with authenticator or return component directly
+const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
 
-      export default AuthenticatedDashboard;
+export default AuthenticatedDashboard;
 
 
