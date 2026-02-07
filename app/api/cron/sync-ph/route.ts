@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { fetchDailyProducts } from '@/lib/ph-api';
 import { scoreProduct } from '@/lib/gemini';
 import { generateClient } from 'aws-amplify/data';
@@ -7,9 +7,9 @@ import type { Schema } from '@/amplify/data/resource';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const logs: string[] = [];
-  const MAX_DURATION_MS = 50 * 1000; // 50 seconds safety buffer
+  const MAX_DURATION_MS = 20 * 1000; // 20 seconds safety buffer (CloudFront limit is ~30s)
   const startTime = Date.now();
 
   // 1. Check CRON_SECRET (Security)
@@ -143,6 +143,6 @@ export async function GET() {
   }
 }
 
-export async function POST() {
-  return GET();
+export async function POST(request: NextRequest) {
+  return GET(request);
 }
