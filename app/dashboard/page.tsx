@@ -133,96 +133,95 @@ function Dashboard({ signOut }: { signOut?: () => void }) {
             Logout
           </button>
         )}
-      </div>
-    </header>
+      </header>
 
       {
-    loading ? (
-      <div className="flex flex-col items-center justify-center py-40">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mb-4"></div>
-        <div className="text-white/30 text-xl font-bold">Scanning the frontier...</div>
-      </div>
-    ) : (
-      <>
-        {products.length === 0 ? (
-          <GlassCard className="text-center py-20">
-            <p className="text-xl text-white/50 mb-6">No products found. The automated sync runs every 6 hours.</p>
-          </GlassCard>
+        loading ? (
+          <div className="flex flex-col items-center justify-center py-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mb-4"></div>
+            <div className="text-white/30 text-xl font-bold">Scanning the frontier...</div>
+          </div>
         ) : (
           <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <StatsCard
-                title="Total Products"
-                value={stats.totalProducts}
-                icon={Package}
-                color="text-cyan-400"
-              />
-              <StatsCard
-                title="Average Score"
-                value={stats.avgScore}
-                icon={TrendingUp}
-                color="text-green-400"
-              />
-              <StatsCard
-                title="Top Scorer"
-                value={stats.topProduct?.name || 'N/A'}
-                icon={Award}
-                color="text-yellow-400"
-              />
-              <StatsCard
-                title="Total Upvotes"
-                value={stats.totalUpvotes.toLocaleString()}
-                icon={Zap}
-                color="text-purple-400"
-              />
-            </div>
-
-            {/* Filter Controls */}
-            <div className="mb-8">
-              <FilterControls
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                scoreRange={scoreRange}
-                onScoreRangeChange={setScoreRange}
-                showFilters={showFilters}
-                onToggleFilters={() => setShowFilters(!showFilters)}
-              />
-            </div>
-
-            {/* Products Grid */}
-            {filteredProducts.length === 0 ? (
+            {products.length === 0 ? (
               <GlassCard className="text-center py-20">
-                <p className="text-xl text-white/50">No products match your filters. Try adjusting your search or filters.</p>
+                <p className="text-xl text-white/50 mb-6">No products found. The automated sync runs every 6 hours.</p>
               </GlassCard>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onClick={() => setSelectedProduct(product)}
+              <>
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <StatsCard
+                    title="Total Products"
+                    value={stats.totalProducts}
+                    icon={Package}
+                    color="text-cyan-400"
                   />
-                ))}
-              </div>
-            )}
-          </>
-        )}
+                  <StatsCard
+                    title="Average Score"
+                    value={stats.avgScore}
+                    icon={TrendingUp}
+                    color="text-green-400"
+                  />
+                  <StatsCard
+                    title="Top Scorer"
+                    value={stats.topProduct?.name || 'N/A'}
+                    icon={Award}
+                    color="text-yellow-400"
+                  />
+                  <StatsCard
+                    title="Total Upvotes"
+                    value={stats.totalUpvotes.toLocaleString()}
+                    icon={Zap}
+                    color="text-purple-400"
+                  />
+                </div>
 
-        <ScoreModal
-          isOpen={!!selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          product={selectedProduct}
-        />
-      </main >
-  );
+                {/* Filter Controls */}
+                <div className="mb-8">
+                  <FilterControls
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                    scoreRange={scoreRange}
+                    onScoreRangeChange={setScoreRange}
+                    showFilters={showFilters}
+                    onToggleFilters={() => setShowFilters(!showFilters)}
+                  />
+                </div>
+
+                {/* Products Grid */}
+                {filteredProducts.length === 0 ? (
+                  <GlassCard className="text-center py-20">
+                    <p className="text-xl text-white/50">No products match your filters. Try adjusting your search or filters.</p>
+                  </GlassCard>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        onClick={() => setSelectedProduct(product)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            <ScoreModal
+              isOpen={!!selectedProduct}
+              onClose={() => setSelectedProduct(null)}
+              product={selectedProduct}
+            />
+          </main >
+      );
   }
 
-  // Conditionally wrap with authenticator or return component directly
-  const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
+      // Conditionally wrap with authenticator or return component directly
+      const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
 
-  export default AuthenticatedDashboard;
+      export default AuthenticatedDashboard;
 
 
