@@ -210,9 +210,6 @@ function Dashboard() {
   );
 }
 
-// Conditionally wrap with authenticator or return component directly
-const AuthenticatedDashboard = IS_DEV_MODE ? Dashboard : withAuthenticator(Dashboard);
-
-export default AuthenticatedDashboard;
+export default Dashboard;
 
 
