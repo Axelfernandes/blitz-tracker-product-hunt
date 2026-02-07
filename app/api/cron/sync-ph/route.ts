@@ -88,11 +88,20 @@ export async function GET(request: NextRequest) {
     const alreadyExistsCount = products.length - newProducts.length;
 
     logs.push(`Skipped ${alreadyExistsCount} existing products.`);
-    logs.push(`Processing ${newProducts.length} new products...`);
-    console.log(`Processing ${newProducts.length} new products.`);
+    logs.push(`Found ${newProducts.length} new products to process.`);
+    console.log(`Found ${newProducts.length} new products to process.`);
 
-    for (const p of newProducts) {
-      // Timeout check
+    // --- BATCH PROCESSING START ---
+    // Only process the first 5 products to avoid timeouts.
+    const BATCH_SIZE = 5;
+    const batch = newProducts.slice(0, BATCH_SIZE);
+    const remainingCount = Math.max(0, newProducts.length - BATCH_SIZE);
+
+    logs.push(`Processing batch of ${batch.length} products. (${remainingCount} remaining in queue)`);
+    console.log(`Processing batch of ${batch.length} products.`);
+
+    for (const p of batch) {
+      // Timeout check (still keep as backup safety)
       const elapsed = Date.now() - startTime;
       if (elapsed > MAX_DURATION_MS) {
         const msg = `WARNING: Time limit reached (${elapsed}ms). Stopping partial sync.`;
@@ -135,7 +144,7 @@ export async function GET(request: NextRequest) {
           }
 
           // Delay for Gemini free tier RPM (only for new saves)
-          // REDUCED DELAY to help with timeouts
+          // 2 seconds is safe since we only do 5 items max = 10s total delay + processing time
           await new Promise(r => setTimeout(r, 2000));
         }
       } catch (err: any) {
@@ -147,6 +156,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       processed: results.length,
+      remaining: remainingCount,
+      hasMore: remainingCount > 0,
       skipped: alreadyExistsCount,
       logs
     });
