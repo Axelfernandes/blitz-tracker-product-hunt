@@ -87,31 +87,91 @@ html.light *,
   color: rgba(17, 17, 17, var(--tw-text-opacity, 1)) !important;
 }
 
-/* Exception for brand colors and icons */
+/* Exception for brand colors - keep them colored */
 html.light .text-cyan-400,
 html.light .text-green-400,
 html.light .text-yellow-400,
+html.light .text-yellow-500,
 html.light .text-purple-400,
 html.light .text-pink-400,
 html.light .text-red-400,
+html.light .text-red-500,
 html.light .text-orange-400,
 html.light .text-blue-400,
 html.light .text-primary,
+html.light .text-\[\#FF958C\],
+html.light .text-\[\#EE85B5\],
 .light .text-cyan-400,
 .light .text-green-400,
 .light .text-yellow-400,
+.light .text-yellow-500,
 .light .text-purple-400,
 .light .text-pink-400,
 .light .text-red-400,
+.light .text-red-500,
 .light .text-orange-400,
 .light .text-blue-400,
-.light .text-primary {
+.light .text-primary,
+.light .text-\[\#FF958C\],
+.light .text-\[\#EE85B5\] {
   color: #0891b2 !important;
 }
 
+html.light .text-yellow-400,
 html.light .text-yellow-500,
+.light .text-yellow-400,
 .light .text-yellow-500 {
   color: #ca8a04 !important;
+}
+
+html.light .text-green-400,
+.light .text-green-400 {
+  color: #16a34a !important;
+}
+
+html.light .text-red-400,
+.light .text-red-400 {
+  color: #dc2626 !important;
+}
+
+/* Modal specific overrides */
+html.light .max-w-3xl,
+html.light [class*="border-white\/30"],
+.light .max-w-3xl,
+.light [class*="border-white\/30"] {
+  background: #ffffff !important;
+  border-color: #e5e5e5 !important;
+}
+
+html.light .max-w-3xl h2,
+html.light .max-w-3xl h3,
+html.light .max-w-3xl p,
+html.light .max-w-3xl span,
+html.light .max-w-3xl div,
+.light .max-w-3xl h2,
+.light .max-w-3xl h3,
+.light .max-w-3xl p,
+.light .max-w-3xl span,
+.light .max-w-3xl div {
+  color: #111111 !important;
+}
+
+/* Preserve colored text for score badges */
+html.light .max-w-3xl .text-green-400,
+html.light .max-w-3xl .text-yellow-400,
+html.light .max-w-3xl .text-orange-400,
+html.light .max-w-3xl .text-red-400,
+html.light .max-w-3xl .text-cyan-400,
+html.light .max-w-3xl .text-blue-400,
+html.light .max-w-3xl .text-purple-400,
+.light .max-w-3xl .text-green-400,
+.light .max-w-3xl .text-yellow-400,
+.light .max-w-3xl .text-orange-400,
+.light .max-w-3xl .text-red-400,
+.light .max-w-3xl .text-cyan-400,
+.light .max-w-3xl .text-blue-400,
+.light .max-w-3xl .text-purple-400 {
+  color: inherit !important;
 }
 
 /* Input styles for light mode */
@@ -279,8 +339,61 @@ html.light .bg-white\/20,
 html.light .border-white\/10,
 html.light .border-white\/20,
 html.light .border-white\/5,
+html.light .border-white\/30,
 .light .border-white\/10,
 .light .border-white\/20,
-.light .border-white\/5 {
+.light .border-white\/5,
+.light .border-white\/30 {
   border-color: #e5e5e5 !important;
+}
+
+/* ScoreModal specific overrides */
+html.light [class*="bg-gray-900"],
+html.light [class*="bg-black"],
+.light [class*="bg-gray-900"],
+.light [class*="bg-black"] {
+  background: #ffffff !important;
+}
+
+html.light h2,
+html.light h3,
+html.light h4,
+.light h2,
+.light h3,
+.light h4 {
+  color: #111111 !important;
+}
+
+/* Modal score display */
+html.light .text-6xl,
+html.light .text-5xl,
+html.light .text-4xl,
+html.light .text-3xl,
+html.light .text-2xl,
+html.light .text-xl,
+.light .text-6xl,
+.light .text-5xl,
+.light .text-4xl,
+.light .text-3xl,
+.light .text-2xl,
+.light .text-xl {
+  color: #111111 !important;
+}
+
+/* Score color badges should stay colored */
+html.light [class*="text-yellow"],
+html.light [class*="text-blue"],
+html.light [class*="text-green"],
+html.light [class*="text-purple"],
+html.light [class*="text-red"],
+html.light [class*="text-cyan"],
+html.light [class*="text-pink"],
+.light [class*="text-yellow"],
+.light [class*="text-blue"],
+.light [class*="text-green"],
+.light [class*="text-purple"],
+.light [class*="text-red"],
+.light [class*="text-cyan"],
+.light [class*="text-pink"] {
+  color: inherit !important;
 }

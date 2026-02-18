@@ -20,17 +20,16 @@ export function ProductCard({ product, onClick, index = 0 }: ProductCardProps) {
   const hasHighGrowth = hasScore && (product.growthScore || 0) > 5;
 
   const borderClass = cn(
-    hasScore && grade === 'A' && "border-l-4 border-l-yellow-400",
-    hasScore && grade === 'B' && "border-l-4 border-l-green-400",
-    hasScore && grade === 'C' && "border-l-4 border-l-blue-400",
-    hasScore && grade === 'D' && "border-l-4 border-l-purple-400",
-    hasScore && grade === 'F' && "border-l-4 border-l-gray-400"
+    hasScore && (grade === 'A+' || grade === 'A') && "border-l-4 border-l-yellow-400",
+    hasScore && (grade === 'B+' || grade === 'B') && "border-l-4 border-l-green-400",
+    hasScore && (grade === 'C+' || grade === 'C') && "border-l-4 border-l-blue-400",
+    hasScore && grade === 'D' && "border-l-4 border-l-purple-400"
   );
 
   const glowClass = cn(
-    hasScore && grade === 'A' && "shadow-[0_0_20px_rgba(250,204,21,0.15)]",
-    hasScore && grade === 'B' && "shadow-[0_0_20px_rgba(74,222,128,0.15)]",
-    hasScore && grade === 'C' && "shadow-[0_0_20px_rgba(96,165,250,0.15)]",
+    hasScore && (grade === 'A+' || grade === 'A') && "shadow-[0_0_20px_rgba(250,204,21,0.15)]",
+    hasScore && (grade === 'B+' || grade === 'B') && "shadow-[0_0_20px_rgba(74,222,128,0.15)]",
+    hasScore && (grade === 'C+' || grade === 'C') && "shadow-[0_0_20px_rgba(96,165,250,0.15)]",
     hasScore && grade === 'D' && "shadow-[0_0_20px_rgba(168,85,247,0.15)]"
   );
 

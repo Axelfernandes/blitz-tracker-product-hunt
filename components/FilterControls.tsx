@@ -26,9 +26,9 @@ interface FilterControlsProps {
 }
 
 const QUICK_FILTERS = [
-    { id: 'high-score', label: 'High Score (8+)', icon: TrendingUp, filter: (p: any) => (p.score || 0) >= 8 },
-    { id: 'grade-a', label: 'Grade A', icon: Star, filter: (p: any) => (p.score || 0) >= 8 },
-    { id: 'grade-b', label: 'Grade B', icon: Star, filter: (p: any) => (p.score || 0) >= 6 && (p.score || 0) < 8 },
+    { id: 'grade-a-plus', label: 'Grade A+ (9+)', icon: Star, filter: (p: any) => (p.score || 0) >= 9 },
+    { id: 'grade-a', label: 'Grade A (8+)', icon: Star, filter: (p: any) => (p.score || 0) >= 8 },
+    { id: 'grade-b', label: 'Grade B (6-8)', icon: Star, filter: (p: any) => (p.score || 0) >= 6 && (p.score || 0) < 8 },
     { id: 'recent', label: 'This Week', icon: Calendar, filter: (p: any) => {
         if (!p.launchDate) return false;
         const weekAgo = new Date();
