@@ -1,8 +1,8 @@
 'use client';
 
-import { Search, X, Clock, TrendingUp, Calendar, Zap, XCircle } from "lucide-react";
+import { Search, X, Clock, TrendingUp, Calendar, Zap, XCircle, Star, Filter, Bookmark, BookmarkCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { Schema } from "@/amplify/data/resource";
 
 interface SearchSuggestion {
@@ -26,13 +26,31 @@ interface FilterControlsProps {
 }
 
 const QUICK_FILTERS = [
-    { id: 'high-score', label: 'High Score', icon: TrendingUp, filter: (p: any) => p.score >= 8 },
+    { id: 'high-score', label: 'High Score (8+)', icon: TrendingUp, filter: (p: any) => (p.score || 0) >= 8 },
+    { id: 'grade-a', label: 'Grade A', icon: Star, filter: (p: any) => (p.score || 0) >= 8 },
+    { id: 'grade-b', label: 'Grade B', icon: Star, filter: (p: any) => (p.score || 0) >= 6 && (p.score || 0) < 8 },
     { id: 'recent', label: 'This Week', icon: Calendar, filter: (p: any) => {
+        if (!p.launchDate) return false;
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         return new Date(p.launchDate) >= weekAgo;
     }},
-    { id: 'popular', label: 'Popular', icon: Zap, filter: (p: any) => p.upvotes >= 50 },
+    { id: 'today', label: 'Today', icon: Calendar, filter: (p: any) => {
+        if (!p.launchDate) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return new Date(p.launchDate) >= today;
+    }},
+    { id: 'popular', label: 'Popular (50+)', icon: Zap, filter: (p: any) => (p.upvotes || 0) >= 50 },
+    { id: 'not-scored', label: 'Not Scored', icon: Filter, filter: (p: any) => !p.score || p.score === 0 },
+];
+
+const DATE_PRESETS = [
+    { id: 'today', label: 'Today' },
+    { id: 'week', label: 'This Week' },
+    { id: 'month', label: 'This Month' },
+    { id: 'quarter', label: 'This Quarter' },
+    { id: 'year', label: 'This Year' },
 ];
 
 const STORAGE_KEY = 'blitz-search-history';
@@ -57,24 +75,19 @@ export function FilterControls({
     const containerRef = useRef<HTMLDivElement>(null);
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Debounced search
-    const debouncedSearch = useMemo(() => {
-        return searchQuery;
-    }, [searchQuery]);
-
     // Generate suggestions with debounce
     useEffect(() => {
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
         }
 
-        if (!debouncedSearch.trim()) {
+        if (!searchQuery.trim()) {
             setSuggestions([]);
             return;
         }
 
         debounceRef.current = setTimeout(() => {
-            const query = debouncedSearch.toLowerCase();
+            const query = searchQuery.toLowerCase();
             const matches = products
                 .filter(p => 
                     p.name?.toLowerCase().includes(query) ||
@@ -96,7 +109,7 @@ export function FilterControls({
                 clearTimeout(debounceRef.current);
             }
         };
-    }, [debouncedSearch, products]);
+    }, [searchQuery, products]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
