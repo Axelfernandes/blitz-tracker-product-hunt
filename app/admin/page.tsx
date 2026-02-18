@@ -570,9 +570,9 @@ function AdminPanel() {
                       </div>
                     </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      p.score > 0 ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                      (p.score || 0) > 0 ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
                     }`}>
-                      {p.score > 0 ? `Score: ${p.score.toFixed(1)}` : 'Not scored'}
+                      {(p.score || 0) > 0 ? `Score: ${(p.score || 0).toFixed(1)}` : 'Not scored'}
                     </span>
                   </div>
                 ))}

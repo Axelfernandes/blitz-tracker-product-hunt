@@ -7,29 +7,28 @@ import { ProductCard } from '@/components/ProductCard';
 import { ScoreModal } from '@/components/ScoreModal';
 import { GlassCard } from '@/components/GlassCard';
 import { StatsCard } from '@/components/StatsCard';
-import { FilterControls } from '@/components/FilterControls';
-import { Rocket, RefreshCcw, TrendingUp, Package, Award, Zap, LogOut } from 'lucide-react';
-import { cn, filterBySearch, filterByScoreRange, sortProducts } from '@/lib/utils';
+import { FilterControls, QUICK_FILTERS } from '@/components/FilterControls';
+import { TrendingUp, Package, Award, Zap } from 'lucide-react';
+import { filterBySearch, filterByScoreRange, sortProducts } from '@/lib/utils';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
-import { useRouter } from 'next/navigation';
 
 const IS_DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
 const client = generateClient<Schema>();
 
 export default function Dashboard() {
-  const router = useRouter();
-  const [products, setProducts] = useState<any[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [products, setProducts] = useState<Schema['Product']['type'][]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Schema['Product']['type'] | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
   const [scoreRange, setScoreRange] = useState<[number, number]>([0, 10]);
   const [showFilters, setShowFilters] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<string | null>(null);
 
   useEffect(() => {
     if (IS_DEV_MODE) {
-      setProducts(MOCK_PRODUCTS);
+      setProducts(MOCK_PRODUCTS as Schema['Product']['type'][]);
       setLoading(false);
       return;
     }
@@ -47,7 +46,7 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Error fetching products', err);
       if (process.env.NODE_ENV === 'development') {
-        setProducts(MOCK_PRODUCTS);
+        setProducts(MOCK_PRODUCTS as Schema['Product']['type'][]);
       }
     } finally {
       setLoading(false);
@@ -56,54 +55,38 @@ export default function Dashboard() {
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
+    
+    if (quickFilter) {
+      const filter = QUICK_FILTERS.find(f => f.id === quickFilter);
+      if (filter) {
+        filtered = filtered.filter(filter.filter);
+      }
+    }
+    
     filtered = filterBySearch(filtered, searchQuery);
     filtered = filterByScoreRange(filtered, scoreRange[0], scoreRange[1]);
     filtered = sortProducts(filtered, sortBy);
     return filtered;
-  }, [products, searchQuery, scoreRange, sortBy]);
+  }, [products, searchQuery, scoreRange, sortBy, quickFilter]);
 
   const stats = useMemo(() => {
     const totalProducts = products.length;
-    const scoredProducts = products.filter(p => p.score > 0);
+    const scoredProducts = products.filter(p => p.score && p.score > 0);
     const avgScore = scoredProducts.length > 0
-      ? (scoredProducts.reduce((sum, p) => sum + p.score, 0) / scoredProducts.length).toFixed(1)
+      ? (scoredProducts.reduce((sum, p) => sum + (p.score || 0), 0) / scoredProducts.length).toFixed(1)
       : '0';
     const topProduct = scoredProducts.length > 0
-      ? scoredProducts.reduce((max, p) => p.score > max.score ? p : max, scoredProducts[0])
+      ? scoredProducts.reduce((max, p) => (p.score || 0) > (max.score || 0) ? p : max, scoredProducts[0])
       : null;
     const totalUpvotes = products.reduce((sum, p) => sum + (p.upvotes || 0), 0);
     return { totalProducts, avgScore, topProduct, totalUpvotes };
   }, [products]);
 
   return (
-    <main className="container mx-auto px-4 py-12 min-h-screen">
-      <header className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-        <div className="text-center md:text-left">
-          <h1 className="text-5xl font-black tracking-tighter flex items-center justify-center md:justify-start gap-3">
-            <Rocket className="text-cyan-400 w-10 h-10" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
-              BlitzTracker
-            </span>
-          </h1>
-          <p className="text-white/50 mt-2 font-medium">Monitoring the next wave of hyper-growth startups.</p>
-          {IS_DEV_MODE && (
-            <div className="mt-2 inline-block px-3 py-1 bg-yellow-500/10 border border-yellow-500/20 rounded-full">
-              <span className="text-xs font-bold text-yellow-500 uppercase tracking-wider">Development Mode / Mock Data</span>
-            </div>
-          )}
-        </div>
-        <button 
-          onClick={() => router.push('/admin')}
-          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/70 transition-all"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Admin</span>
-        </button>
-      </header>
-
+    <div className="container mx-auto px-4 py-8 min-h-screen">
       {loading ? (
         <div className="flex flex-col items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF958C] mb-4"></div>
           <div className="text-white/30 text-xl font-bold">Scanning the frontier...</div>
         </div>
       ) : (
@@ -119,25 +102,25 @@ export default function Dashboard() {
                   title="Total Products"
                   value={stats.totalProducts}
                   icon={Package}
-                  color="text-cyan-400"
+                  color="text-[#FF958C]"
                 />
                 <StatsCard
                   title="Average Score"
                   value={stats.avgScore}
                   icon={TrendingUp}
-                  color="text-green-400"
+                  color="text-[#EE85B5]"
                 />
                 <StatsCard
                   title="Top Scorer"
                   value={stats.topProduct?.name || 'N/A'}
                   icon={Award}
-                  color="text-yellow-400"
+                  color="text-[#441151]"
                 />
                 <StatsCard
                   title="Total Upvotes"
                   value={stats.totalUpvotes.toLocaleString()}
                   icon={Zap}
-                  color="text-purple-400"
+                  color="text-[#FF958C]"
                 />
               </div>
 
@@ -151,6 +134,9 @@ export default function Dashboard() {
                   onScoreRangeChange={setScoreRange}
                   showFilters={showFilters}
                   onToggleFilters={() => setShowFilters(!showFilters)}
+                  products={products}
+                  quickFilter={quickFilter}
+                  onQuickFilterChange={setQuickFilter}
                 />
               </div>
 
@@ -179,6 +165,6 @@ export default function Dashboard() {
         onClose={() => setSelectedProduct(null)}
         product={selectedProduct}
       />
-    </main>
+    </div>
   );
 }
