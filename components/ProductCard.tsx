@@ -5,7 +5,6 @@ import { ArrowBigUp, Calendar, TrendingUp, Package, Zap } from "lucide-react";
 import { getScoreColor, getScoreGrade } from "@/lib/utils";
 import type { Schema } from "@/amplify/data/resource";
 import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Schema['Product']['type'];
@@ -19,19 +18,23 @@ export function ProductCard({ product, onClick, index = 0 }: ProductCardProps) {
   const grade = getScoreGrade(score);
   const hasHighGrowth = hasScore && (product.growthScore || 0) > 5;
 
-  const borderClass = cn(
-    hasScore && (grade === 'A+' || grade === 'A') && "border-l-4 border-l-amber-500 dark:border-l-yellow-400",
-    hasScore && (grade === 'B+' || grade === 'B') && "border-l-4 border-l-emerald-600 dark:border-l-green-400",
-    hasScore && (grade === 'C+' || grade === 'C') && "border-l-4 border-l-blue-600 dark:border-l-blue-400",
-    hasScore && grade === 'D' && "border-l-4 border-l-violet-500 dark:border-l-purple-400"
-  );
+  const getBorderClass = () => {
+    if (!hasScore) return '';
+    if (grade === 'A+' || grade === 'A') return 'border-l-4 border-l-amber-500 dark:border-l-yellow-400';
+    if (grade === 'B+' || grade === 'B') return 'border-l-4 border-l-emerald-600 dark:border-l-green-400';
+    if (grade === 'C+' || grade === 'C') return 'border-l-4 border-l-blue-600 dark:border-l-blue-400';
+    if (grade === 'D') return 'border-l-4 border-l-violet-500 dark:border-l-purple-400';
+    return '';
+  };
 
-  const glowClass = cn(
-    hasScore && (grade === 'A+' || grade === 'A') && "shadow-[0_0_20px_rgba(245,158,11,0.2)] dark:shadow-[0_0_20px_rgba(250,204,21,0.15)]",
-    hasScore && (grade === 'B+' || grade === 'B') && "shadow-[0_0_20px_rgba(5,150,105,0.2)] dark:shadow-[0_0_20px_rgba(74,222,128,0.15)]",
-    hasScore && (grade === 'C+' || grade === 'C') && "shadow-[0_0_20px_rgba(37,99,235,0.2)] dark:shadow-[0_0_20px_rgba(96,165,250,0.15)]",
-    hasScore && grade === 'D' && "shadow-[0_0_20px_rgba(139,92,246,0.2)] dark:shadow-[0_0_20px_rgba(168,85,247,0.15)]"
-  );
+  const getGlowClass = () => {
+    if (!hasScore) return '';
+    if (grade === 'A+' || grade === 'A') return 'shadow-[0_0_20px_rgba(245,158,11,0.2)] dark:shadow-[0_0_20px_rgba(250,204,21,0.15)]';
+    if (grade === 'B+' || grade === 'B') return 'shadow-[0_0_20px_rgba(5,150,105,0.2)] dark:shadow-[0_0_20px_rgba(74,222,128,0.15)]';
+    if (grade === 'C+' || grade === 'C') return 'shadow-[0_0_20px_rgba(37,99,235,0.2)] dark:shadow-[0_0_20px_rgba(96,165,250,0.15)]';
+    if (grade === 'D') return 'shadow-[0_0_20px_rgba(139,92,246,0.2)] dark:shadow-[0_0_20px_rgba(168,85,247,0.15)]';
+    return '';
+  };
 
   return (
     <motion.div
@@ -45,20 +48,13 @@ export function ProductCard({ product, onClick, index = 0 }: ProductCardProps) {
     >
       <GlassCard
         onClick={onClick}
-        className={cn(
-          "cursor-pointer flex flex-col h-full gap-3 group relative overflow-hidden",
-          borderClass,
-          glowClass
-        )}
+        className={`cursor-pointer flex flex-col h-full gap-3 group relative overflow-hidden ${getBorderClass()} ${getGlowClass()}`}
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
       >
         {/* Score Badge */}
         {hasScore && (
-          <div className={cn(
-            "absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold border-2 backdrop-blur-sm bg-black/40 z-10",
-            getScoreColor(score)
-          )}>
+          <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold border-2 backdrop-blur-sm bg-black/40 z-10 ${getScoreColor(score)}`}>
             {grade} · {score}
           </div>
         )}
