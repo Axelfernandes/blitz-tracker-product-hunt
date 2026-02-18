@@ -5,6 +5,7 @@ import { ArrowBigUp, Calendar, TrendingUp, Package, Zap } from "lucide-react";
 import { getScoreColor, getScoreGrade } from "@/lib/utils";
 import type { Schema } from "@/amplify/data/resource";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Schema['Product']['type'];
@@ -12,29 +13,26 @@ interface ProductCardProps {
   index?: number;
 }
 
-const scoreBorderColors: Record<string, string> = {
-  'A': 'border-l-4 border-l-yellow-400',
-  'B': 'border-l-4 border-l-green-400', 
-  'C': 'border-l-4 border-l-blue-400',
-  'D': 'border-l-4 border-l-purple-400',
-  'F': 'border-l-4 border-l-gray-400',
-};
-
-const scoreGlowColors: Record<string, string> = {
-  'A': 'shadow-[0_0_20px_rgba(250,204,21,0.15)]',
-  'B': 'shadow-[0_0_20px_rgba(74,222,128,0.15)]',
-  'C': 'shadow-[0_0_20px_rgba(96,165,250,0.15)]',
-  'D': 'shadow-[0_0_20px_rgba(168,85,247,0.15)]',
-  'F': '',
-};
-
 export function ProductCard({ product, onClick, index = 0 }: ProductCardProps) {
   const score = product.score || 0;
   const hasScore = score > 0;
   const grade = getScoreGrade(score);
-  const borderClass = hasScore ? scoreBorderColors[grade] || '' : '';
-  const glowClass = hasScore ? scoreGlowColors[grade] || '' : '';
   const hasHighGrowth = hasScore && (product.growthScore || 0) > 5;
+
+  const borderClass = cn(
+    hasScore && grade === 'A' && "border-l-4 border-l-yellow-400",
+    hasScore && grade === 'B' && "border-l-4 border-l-green-400",
+    hasScore && grade === 'C' && "border-l-4 border-l-blue-400",
+    hasScore && grade === 'D' && "border-l-4 border-l-purple-400",
+    hasScore && grade === 'F' && "border-l-4 border-l-gray-400"
+  );
+
+  const glowClass = cn(
+    hasScore && grade === 'A' && "shadow-[0_0_20px_rgba(250,204,21,0.15)]",
+    hasScore && grade === 'B' && "shadow-[0_0_20px_rgba(74,222,128,0.15)]",
+    hasScore && grade === 'C' && "shadow-[0_0_20px_rgba(96,165,250,0.15)]",
+    hasScore && grade === 'D' && "shadow-[0_0_20px_rgba(168,85,247,0.15)]"
+  );
 
   return (
     <motion.div
@@ -48,13 +46,20 @@ export function ProductCard({ product, onClick, index = 0 }: ProductCardProps) {
     >
       <GlassCard
         onClick={onClick}
-        className={`cursor-pointer flex flex-col h-full gap-3 group relative overflow-hidden ${borderClass} ${glowClass}`}
+        className={cn(
+          "cursor-pointer flex flex-col h-full gap-3 group relative overflow-hidden",
+          borderClass,
+          glowClass
+        )}
         whileHover={{ scale: 1.02, y: -4 }}
         whileTap={{ scale: 0.98 }}
       >
         {/* Score Badge */}
         {hasScore && (
-          <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold border-2 backdrop-blur-sm bg-black/40 ${getScoreColor(score)} z-10`}>
+          <div className={cn(
+            "absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold border-2 backdrop-blur-sm bg-black/40 z-10",
+            getScoreColor(score)
+          )}>
             {grade} · {score}
           </div>
         )}

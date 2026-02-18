@@ -149,6 +149,19 @@ html.light header button,
   color: #111111 !important;
 }
 
+/* Modal and overlay styles for light mode */
+html.light .fixed.inset-0,
+.light .fixed.inset-0 {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+html.light .bg-gray-900\/80,
+html.light .bg-black\/60,
+.light .bg-gray-900\/80,
+.light .bg-black\/60 {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
 /* Background gradients - lighter for light mode */
 body::before {
   content: '';
