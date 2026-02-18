@@ -8,21 +8,20 @@ import { ScoreModal } from '@/components/ScoreModal';
 import { GlassCard } from '@/components/GlassCard';
 import { StatsCard } from '@/components/StatsCard';
 import { FilterControls } from '@/components/FilterControls';
-import { Rocket, RefreshCcw, TrendingUp, Package, Award, Zap } from 'lucide-react';
+import { Rocket, RefreshCcw, TrendingUp, Package, Award, Zap, LogOut } from 'lucide-react';
 import { cn, filterBySearch, filterByScoreRange, sortProducts } from '@/lib/utils';
 import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { useRouter } from 'next/navigation';
 
-// Determine if we are in dev/mock mode
 const IS_DEV_MODE = process.env.NEXT_PUBLIC_DEV_MODE === 'true';
-
 const client = generateClient<Schema>();
 
-function Dashboard() {
+export default function Dashboard() {
+  const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Filter states
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('date-desc');
   const [scoreRange, setScoreRange] = useState<[number, number]>([0, 10]);
@@ -36,23 +35,6 @@ function Dashboard() {
     }
 
     fetchProducts();
-    const sub = client.models.Product.observeQuery().subscribe({
-      next: ({ items }) => {
-        setProducts(items.sort((a, b) =>
-          new Date(b.launchDate || '').getTime() - new Date(a.launchDate || '').getTime()
-        ));
-        setLoading(false);
-      },
-      error: (err) => {
-        console.error('Observe error:', err);
-        // Fallback to mock data in case of Amplify error during dev
-        if (process.env.NODE_ENV === 'development') {
-          setProducts(MOCK_PRODUCTS);
-        }
-        setLoading(false);
-      }
-    });
-    return () => sub.unsubscribe();
   }, []);
 
   async function fetchProducts() {
@@ -72,24 +54,14 @@ function Dashboard() {
     }
   }
 
-
-  // Apply filters and sorting
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
-
-    // Apply search
     filtered = filterBySearch(filtered, searchQuery);
-
-    // Apply score range filter
     filtered = filterByScoreRange(filtered, scoreRange[0], scoreRange[1]);
-
-    // Apply sorting
     filtered = sortProducts(filtered, sortBy);
-
     return filtered;
   }, [products, searchQuery, scoreRange, sortBy]);
 
-  // Calculate stats
   const stats = useMemo(() => {
     const totalProducts = products.length;
     const scoredProducts = products.filter(p => p.score > 0);
@@ -100,7 +72,6 @@ function Dashboard() {
       ? scoredProducts.reduce((max, p) => p.score > max.score ? p : max, scoredProducts[0])
       : null;
     const totalUpvotes = products.reduce((sum, p) => sum + (p.upvotes || 0), 0);
-
     return { totalProducts, avgScore, topProduct, totalUpvotes };
   }, [products]);
 
@@ -121,95 +92,93 @@ function Dashboard() {
             </div>
           )}
         </div>
-
+        <button 
+          onClick={() => router.push('/admin')}
+          className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/70 transition-all"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Admin</span>
+        </button>
       </header>
 
-      {
-        loading ? (
-          <div className="flex flex-col items-center justify-center py-40">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mb-4"></div>
-            <div className="text-white/30 text-xl font-bold">Scanning the frontier...</div>
-          </div>
-        ) : (
-          <>
-            {products.length === 0 ? (
-              <GlassCard className="text-center py-20">
-                <p className="text-xl text-white/50 mb-6">No products found. The automated sync runs every 6 hours.</p>
-              </GlassCard>
-            ) : (
-              <>
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                  <StatsCard
-                    title="Total Products"
-                    value={stats.totalProducts}
-                    icon={Package}
-                    color="text-cyan-400"
-                  />
-                  <StatsCard
-                    title="Average Score"
-                    value={stats.avgScore}
-                    icon={TrendingUp}
-                    color="text-green-400"
-                  />
-                  <StatsCard
-                    title="Top Scorer"
-                    value={stats.topProduct?.name || 'N/A'}
-                    icon={Award}
-                    color="text-yellow-400"
-                  />
-                  <StatsCard
-                    title="Total Upvotes"
-                    value={stats.totalUpvotes.toLocaleString()}
-                    icon={Zap}
-                    color="text-purple-400"
-                  />
-                </div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-40">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-400 mb-4"></div>
+          <div className="text-white/30 text-xl font-bold">Scanning the frontier...</div>
+        </div>
+      ) : (
+        <>
+          {products.length === 0 ? (
+            <GlassCard className="text-center py-20">
+              <p className="text-xl text-white/50 mb-6">No products found. The automated sync runs every 6 hours.</p>
+            </GlassCard>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatsCard
+                  title="Total Products"
+                  value={stats.totalProducts}
+                  icon={Package}
+                  color="text-cyan-400"
+                />
+                <StatsCard
+                  title="Average Score"
+                  value={stats.avgScore}
+                  icon={TrendingUp}
+                  color="text-green-400"
+                />
+                <StatsCard
+                  title="Top Scorer"
+                  value={stats.topProduct?.name || 'N/A'}
+                  icon={Award}
+                  color="text-yellow-400"
+                />
+                <StatsCard
+                  title="Total Upvotes"
+                  value={stats.totalUpvotes.toLocaleString()}
+                  icon={Zap}
+                  color="text-purple-400"
+                />
+              </div>
 
-                {/* Filter Controls */}
-                <div className="mb-8">
-                  <FilterControls
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                    scoreRange={scoreRange}
-                    onScoreRangeChange={setScoreRange}
-                    showFilters={showFilters}
-                    onToggleFilters={() => setShowFilters(!showFilters)}
-                  />
-                </div>
+              <div className="mb-8">
+                <FilterControls
+                  searchQuery={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  sortBy={sortBy}
+                  onSortChange={setSortBy}
+                  scoreRange={scoreRange}
+                  onScoreRangeChange={setScoreRange}
+                  showFilters={showFilters}
+                  onToggleFilters={() => setShowFilters(!showFilters)}
+                />
+              </div>
 
-                {/* Products Grid */}
-                {filteredProducts.length === 0 ? (
-                  <GlassCard className="text-center py-20">
-                    <p className="text-xl text-white/50">No products match your filters. Try adjusting your search or filters.</p>
-                  </GlassCard>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        onClick={() => setSelectedProduct(product)}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+              {filteredProducts.length === 0 ? (
+                <GlassCard className="text-center py-20">
+                  <p className="text-xl text-white/50">No products match your filters. Try adjusting your search or filters.</p>
+                </GlassCard>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onClick={() => setSelectedProduct(product)}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </>
+      )}
 
       <ScoreModal
         isOpen={!!selectedProduct}
         onClose={() => setSelectedProduct(null)}
         product={selectedProduct}
       />
-    </main >
+    </main>
   );
 }
-
-export default Dashboard;
-
-

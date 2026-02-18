@@ -22,7 +22,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       // Allow public creation/read for the sync route (apiKey)
-      allow.publicApiKey().to(['read', 'create']),
+      allow.publicApiKey().to(['read', 'create', 'update']),
       allow.authenticated().to(['read', 'create', 'update', 'delete']),
     ]),
 });

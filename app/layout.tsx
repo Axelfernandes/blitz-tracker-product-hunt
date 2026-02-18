@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased bg-[#0a0a0c] text-white min-h-screen selection:bg-cyan-500/30`}>
+      <body suppressHydrationWarning className={`${inter.className} antialiased bg-[#0a0a0c] text-white min-h-screen selection:bg-cyan-500/30`}>
         <ConfigureAmplifyClientSide />
         <div className="fixed inset-0 -z-10 overflow-hidden">
 

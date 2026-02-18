@@ -1,7 +1,7 @@
 import { GlassCard } from "./GlassCard";
 import { format } from "date-fns";
 import Image from "next/image";
-import { ArrowBigUp, Calendar, TrendingUp } from "lucide-react";
+import { ArrowBigUp, Calendar, TrendingUp, Package } from "lucide-react";
 import { getScoreColor, getScoreGrade } from "@/lib/utils";
 
 interface ProductCardProps {
@@ -29,12 +29,19 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
 
       <div className="flex items-start justify-between gap-4">
         <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-white/20 group-hover:border-cyan-400/50 transition-colors">
-          <Image
-            src={product.thumbnailUrl || product.thumbnail?.url}
-            alt={product.name}
-            fill
-            className="object-cover group-hover:scale-110 transition-transform duration-300"
-          />
+          {product.thumbnailUrl && product.thumbnailUrl.startsWith('http') ? (
+            <Image
+              src={product.thumbnailUrl}
+              alt={product.name}
+              fill
+              sizes="64px"
+              className="object-cover group-hover:scale-110 transition-transform duration-300"
+            />
+          ) : (
+            <div className="h-full w-full bg-white/10 flex items-center justify-center">
+              <Package className="w-8 h-8 text-white/30" />
+            </div>
+          )}
         </div>
       </div>
 

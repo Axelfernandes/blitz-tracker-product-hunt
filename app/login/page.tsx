@@ -1,14 +1,28 @@
 'use client';
 
-import { Authenticator, useTheme, View, Text, Heading } from '@aws-amplify/ui-react';
+import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { GlassCard } from '@/components/GlassCard';
 
-export default function LoginPage() {
+function AuthCheck({ user }: { user: unknown }) {
   const router = useRouter();
+  
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
+  return (
+    <div className="flex justify-center p-4">
+      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <GlassCard className="w-full max-w-md p-8 border-white/10">
@@ -20,18 +34,7 @@ export default function LoginPage() {
         </div>
         
         <Authenticator>
-          {({ user }) => {
-            useEffect(() => {
-              if (user) {
-                router.push('/dashboard');
-              }
-            }, [user]);
-            return (
-              <div className="flex justify-center p-4">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-400"></div>
-              </div>
-            );
-          }}
+          {({ user }) => <AuthCheck user={user} />}
         </Authenticator>
 
         <style jsx global>{`
