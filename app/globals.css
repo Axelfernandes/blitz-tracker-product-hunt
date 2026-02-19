@@ -1,33 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Colors - New Palette */
   --primary: #FF958C;
   --primary-dark: #e67a73;
   --secondary: #EE85B5;
   --secondary-dark: #d96a9a;
   --accent: #441151;
   --accent-light: #5a1f6b;
-  
-  /* Light Theme - Improved contrast */
-  --background-light: #ffffff;
-  --foreground-light: #111111;
-  --card-bg-light: #ffffff;
-  --card-border-light: #e5e5e5;
-  --card-hover-light: #f5f5f5;
-  
-  /* Dark Theme */
-  --background-dark: #0a0a0c;
-  --foreground-dark: #fafafa;
-  --card-bg-dark: rgba(255, 255, 255, 0.05);
-  --card-border-dark: rgba(255, 255, 255, 0.1);
-  --card-hover-dark: rgba(255, 255, 255, 0.08);
-  
-  /* Semantic Colors */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
 }
 
 @theme inline {
@@ -36,193 +15,16 @@
   --font-sans: var(--font-inter);
 }
 
-/* Default to dark theme */
+/* Dark theme (default) */
 body {
-  background: var(--background-dark);
-  color: var(--foreground-dark);
+  background: #0a0a0c;
+  color: #fafafa;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
   position: relative;
 }
 
-/* Light theme overrides */
-html.light body,
-.light body {
-  background: var(--background-light) !important;
-  color: var(--foreground-light) !important;
-}
-
-html.light .glass-card,
-.light .glass-card {
-  background: var(--card-bg-light) !important;
-  border-color: var(--card-border-light) !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* Text colors for light mode - make them darker for readability */
-html.light .text-white,
-html.light .text-white\/60,
-html.light .text-white\/70,
-html.light .text-white\/50,
-html.light .text-white\/40,
-html.light .text-white\/30,
-html.light .text-white\/20,
-html.light .text-white\/10,
-.light .text-white,
-.light .text-white\/60,
-.light .text-white\/70,
-.light .text-white\/50,
-.light .text-white\/40,
-.light .text-white\/30,
-.light .text-white\/20,
-.light .text-white\/10 {
-  color: #111111 !important;
-  color: rgba(17, 17, 17, var(--opacity, 1)) !important;
-}
-
-/* Force all text to be dark in light mode */
-html.light *,
-.light * {
-  --tw-text-opacity: 1;
-  color: rgba(17, 17, 17, var(--tw-text-opacity, 1)) !important;
-}
-
-/* Exception for brand colors - keep them colored */
-html.light .text-cyan-400,
-html.light .text-green-400,
-html.light .text-yellow-400,
-html.light .text-yellow-500,
-html.light .text-purple-400,
-html.light .text-pink-400,
-html.light .text-red-400,
-html.light .text-red-500,
-html.light .text-orange-400,
-html.light .text-blue-400,
-html.light .text-primary,
-html.light .text-\[\#FF958C\],
-html.light .text-\[\#EE85B5\],
-.light .text-cyan-400,
-.light .text-green-400,
-.light .text-yellow-400,
-.light .text-yellow-500,
-.light .text-purple-400,
-.light .text-pink-400,
-.light .text-red-400,
-.light .text-red-500,
-.light .text-orange-400,
-.light .text-blue-400,
-.light .text-primary,
-.light .text-\[\#FF958C\],
-.light .text-\[\#EE85B5\] {
-  color: #0891b2 !important;
-}
-
-html.light .text-yellow-400,
-html.light .text-yellow-500,
-.light .text-yellow-400,
-.light .text-yellow-500 {
-  color: #ca8a04 !important;
-}
-
-html.light .text-green-400,
-.light .text-green-400 {
-  color: #16a34a !important;
-}
-
-html.light .text-red-400,
-.light .text-red-400 {
-  color: #dc2626 !important;
-}
-
-/* Modal specific overrides */
-html.light .max-w-3xl,
-html.light [class*="border-white\/30"],
-.light .max-w-3xl,
-.light [class*="border-white\/30"] {
-  background: #ffffff !important;
-  border-color: #e5e5e5 !important;
-}
-
-html.light .max-w-3xl h2,
-html.light .max-w-3xl h3,
-html.light .max-w-3xl p,
-html.light .max-w-3xl span,
-html.light .max-w-3xl div,
-.light .max-w-3xl h2,
-.light .max-w-3xl h3,
-.light .max-w-3xl p,
-.light .max-w-3xl span,
-.light .max-w-3xl div {
-  color: #111111 !important;
-}
-
-/* Preserve colored text for score badges */
-html.light .max-w-3xl .text-green-400,
-html.light .max-w-3xl .text-yellow-400,
-html.light .max-w-3xl .text-orange-400,
-html.light .max-w-3xl .text-red-400,
-html.light .max-w-3xl .text-cyan-400,
-html.light .max-w-3xl .text-blue-400,
-html.light .max-w-3xl .text-purple-400,
-.light .max-w-3xl .text-green-400,
-.light .max-w-3xl .text-yellow-400,
-.light .max-w-3xl .text-orange-400,
-.light .max-w-3xl .text-red-400,
-.light .max-w-3xl .text-cyan-400,
-.light .max-w-3xl .text-blue-400,
-.light .max-w-3xl .text-purple-400 {
-  color: inherit !important;
-}
-
-/* Input styles for light mode */
-html.light input,
-html.light select,
-html.light textarea,
-.light input,
-.light select,
-.light textarea {
-  background: #f5f5f5 !important;
-  border-color: #d4d4d4 !important;
-  color: #111111 !important;
-}
-
-html.light input::placeholder,
-.light input::placeholder {
-  color: #737373 !important;
-}
-
-/* Header styles for light mode */
-html.light header,
-html.light .fixed,
-.light header,
-.light .fixed {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border-color: #e5e5e5 !important;
-}
-
-html.light header a,
-html.light header span,
-html.light header button,
-.light header a,
-.light header span,
-.light header button {
-  color: #111111 !important;
-}
-
-/* Modal and overlay styles for light mode */
-html.light .fixed.inset-0,
-.light .fixed.inset-0 {
-  background: rgba(255, 255, 255, 0.8) !important;
-}
-
-html.light .bg-gray-900\/80,
-html.light .bg-black\/60,
-.light .bg-gray-900\/80,
-.light .bg-black\/60 {
-  background: rgba(255, 255, 255, 0.95) !important;
-}
-
-/* Background gradients - lighter for light mode */
+/* Animated Gradient Background */
 body::before {
   content: '';
   position: fixed;
@@ -238,162 +40,23 @@ body::before {
   animation: gradientShift 15s ease infinite;
 }
 
-html.light body::before,
-.light body::before {
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 149, 140, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(238, 133, 181, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 40% 20%, rgba(68, 17, 81, 0.05) 0%, transparent 30%) !important;
-}
-
 @keyframes gradientShift {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.1);
-  }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
 }
 
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-html.light ::-webkit-scrollbar-track,
-.light ::-webkit-scrollbar-track {
-  background: #f5f5f5;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
-}
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
 
 /* Selection */
-::selection {
-  background: rgba(255, 149, 140, 0.3);
-  color: white;
-}
-
-html.light ::selection,
-.light ::selection {
-  background: rgba(255, 149, 140, 0.3);
-  color: #111111;
-}
+::selection { background: rgba(255, 149, 140, 0.3); color: white; }
 
 /* Focus styles */
-*:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
+*:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 
-/* Smooth transitions for theme changes */
-* {
-  transition-property: background-color, border-color, color;
-  transition-duration: 150ms;
-  transition-timing-function: ease-in-out;
-}
-
-/* Prevent transition on page load */
-.preload * {
-  transition: none !important;
-}
-
-/* Card hover effects */
-html.light .glass-card:hover,
-.light .glass-card:hover {
-  background: var(--card-hover-light) !important;
-}
-
-.glass-card:hover {
-  background: var(--card-hover-dark);
-}
-
-/* Button overrides for light mode */
-html.light button,
-.light button {
-  color: #111111 !important;
-}
-
-html.light .bg-white\/5,
-html.light .bg-white\/10,
-html.light .bg-white\/20,
-.light .bg-white\/5,
-.light .bg-white\/10,
-.light .bg-white\/20 {
-  background: #f5f5f5 !important;
-}
-
-/* Border overrides for light mode */
-html.light .border-white\/10,
-html.light .border-white\/20,
-html.light .border-white\/5,
-html.light .border-white\/30,
-.light .border-white\/10,
-.light .border-white\/20,
-.light .border-white\/5,
-.light .border-white\/30 {
-  border-color: #e5e5e5 !important;
-}
-
-/* ScoreModal specific overrides */
-html.light [class*="bg-gray-900"],
-html.light [class*="bg-black"],
-.light [class*="bg-gray-900"],
-.light [class*="bg-black"] {
-  background: #ffffff !important;
-}
-
-html.light h2,
-html.light h3,
-html.light h4,
-.light h2,
-.light h3,
-.light h4 {
-  color: #111111 !important;
-}
-
-/* Modal score display */
-html.light .text-6xl,
-html.light .text-5xl,
-html.light .text-4xl,
-html.light .text-3xl,
-html.light .text-2xl,
-html.light .text-xl,
-.light .text-6xl,
-.light .text-5xl,
-.light .text-4xl,
-.light .text-3xl,
-.light .text-2xl,
-.light .text-xl {
-  color: #111111 !important;
-}
-
-/* Score color badges should stay colored */
-html.light [class*="text-yellow"],
-html.light [class*="text-blue"],
-html.light [class*="text-green"],
-html.light [class*="text-purple"],
-html.light [class*="text-red"],
-html.light [class*="text-cyan"],
-html.light [class*="text-pink"],
-.light [class*="text-yellow"],
-.light [class*="text-blue"],
-.light [class*="text-green"],
-.light [class*="text-purple"],
-.light [class*="text-red"],
-.light [class*="text-cyan"],
-.light [class*="text-pink"] {
-  color: inherit !important;
-}
+/* Smooth transitions */
+* { transition-property: background-color, border-color, color; transition-duration: 150ms; transition-timing-function: ease-in-out; }
+.preload * { transition: none !important; }
