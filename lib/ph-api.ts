@@ -9,6 +9,14 @@ export interface PHProduct {
   votesCount: number;
   createdAt: string;
   url: string;
+  topics?: {
+    edges: Array<{
+      node: {
+        name: string;
+        slug: string;
+      };
+    }>;
+  };
 }
 
 export async function fetchDailyProducts(): Promise<PHProduct[]> {
@@ -27,6 +35,14 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
             }
             votesCount
             createdAt
+            topics(first: 3) {
+              edges {
+                node {
+                  name
+                  slug
+                }
+              }
+            }
           }
         }
       }
@@ -89,6 +105,14 @@ export async function fetchProductBySlug(slug: string): Promise<PHProduct | null
         }
         votesCount
         createdAt
+        topics(first: 3) {
+          edges {
+            node {
+              name
+              slug
+            }
+          }
+        }
       }
     }
   `;
@@ -132,4 +156,14 @@ export async function fetchProductBySlug(slug: string): Promise<PHProduct | null
     console.error("Failed to fetch PH product:", error);
     return null;
   }
+}
+
+export function getProductCategories(product: PHProduct): string[] {
+  if (!product.topics?.edges) return [];
+  return product.topics.edges.map((edge: any) => edge.node.name);
+}
+
+export function getPrimaryCategory(product: PHProduct): string | null {
+  const categories = getProductCategories(product);
+  return categories.length > 0 ? categories[0] : null;
 }

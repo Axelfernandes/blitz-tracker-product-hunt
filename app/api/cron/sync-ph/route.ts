@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { fetchDailyProducts } from '@/lib/ph-api';
+import { fetchDailyProducts, getPrimaryCategory } from '@/lib/ph-api';
 import { scoreProduct } from '@/lib/gemini';
 import { generateClient } from 'aws-amplify/data';
 import { Amplify } from 'aws-amplify';
@@ -118,6 +118,7 @@ export async function GET(request: NextRequest) {
         if (score) {
           // Save
           console.log(`Saving ${p.name}...`);
+          const category = getPrimaryCategory(p);
           const { data: created, errors: createErrors } = await client.models.Product.create({
             phId: p.id,
             name: p.name,
@@ -126,6 +127,7 @@ export async function GET(request: NextRequest) {
             thumbnailUrl: p.thumbnail.url,
             launchDate: p.createdAt,
             upvotes: p.votesCount,
+            category: category,
             score: score.overallScore,
             speedScore: score.speedScore,
             marketScore: score.marketScore,

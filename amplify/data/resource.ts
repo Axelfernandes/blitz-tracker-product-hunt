@@ -10,6 +10,7 @@ const schema = a.schema({
       thumbnailUrl: a.string(),
       launchDate: a.datetime(),
       upvotes: a.integer(),
+      category: a.string(),
       score: a.float(), // Overall blitz score
       // Individual scores stored as individual fields.
       speedScore: a.float(),

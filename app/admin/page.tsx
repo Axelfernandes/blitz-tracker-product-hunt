@@ -7,7 +7,7 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { GlassCard } from '@/components/GlassCard';
 import { Plus, Download, Calendar, Package, Loader2, CheckCircle, XCircle, Search, ArrowLeft, Save, Sparkles, RefreshCw } from 'lucide-react';
-import { extractProductSlug, fetchProductBySlug, type PHProduct } from '@/lib/ph-api';
+import { extractProductSlug, fetchProductBySlug, getPrimaryCategory, type PHProduct } from '@/lib/ph-api';
 import { scoreProduct, type BlitzScore } from '@/lib/gemini';
 
 const client = generateClient<Schema>();
@@ -21,6 +21,7 @@ interface FetchedProduct {
   thumbnailUrl: string;
   launchDate: string;
   upvotes: number;
+  category?: string;
   score?: BlitzScore;
 }
 
@@ -126,6 +127,7 @@ function AdminPanel() {
         thumbnailUrl: product.thumbnail.url,
         launchDate: product.createdAt,
         upvotes: product.votesCount,
+        category: getPrimaryCategory(product) || undefined,
       };
 
       setFetchedProduct(fetched);
@@ -163,6 +165,7 @@ function AdminPanel() {
         thumbnailUrl: fetchedProduct.thumbnailUrl,
         launchDate: fetchedProduct.launchDate,
         upvotes: fetchedProduct.upvotes,
+        category: fetchedProduct.category,
         score: fetchedProduct.score?.overallScore || 0,
         speedScore: fetchedProduct.score?.speedScore || 0,
         marketScore: fetchedProduct.score?.marketScore || 0,
@@ -433,6 +436,12 @@ function AdminPanel() {
                           <p className="text-white/50 text-sm">Upvotes</p>
                           <p className="text-white">{fetchedProduct.upvotes}</p>
                         </div>
+                        {fetchedProduct.category && (
+                          <div className="col-span-2">
+                            <p className="text-white/50 text-sm">Category</p>
+                            <p className="text-white">{fetchedProduct.category}</p>
+                          </div>
+                        )}
                       </div>
                       {fetchedProduct.description && (
                         <div>
