@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { GlassCard } from '@/components/GlassCard';
-import { Plus, Download, Calendar, Package, Loader2, CheckCircle, XCircle, Search, ArrowLeft, Save, Sparkles } from 'lucide-react';
+import { Plus, Download, Calendar, Package, Loader2, CheckCircle, XCircle, Search, ArrowLeft, Save, Sparkles, RefreshCw } from 'lucide-react';
 import { extractProductSlug, fetchProductBySlug, type PHProduct } from '@/lib/ph-api';
 import { scoreProduct, type BlitzScore } from '@/lib/gemini';
 
@@ -25,7 +25,7 @@ interface FetchedProduct {
 }
 
 function AdminPanel() {
-  const [activeTab, setActiveTab] = useState<'add' | 'export'>('add');
+  const [activeTab, setActiveTab] = useState<'add' | 'export' | 'sync'>('add');
   const [products, setProducts] = useState<ProductType[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [formStatus, setFormStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({ type: null, message: '' });
@@ -33,6 +33,9 @@ function AdminPanel() {
   const [exportStartDate, setExportStartDate] = useState('');
   const [exportEndDate, setExportEndDate] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+  const [syncLogs, setSyncLogs] = useState<string[]>([]);
 
   const [phUrl, setPhUrl] = useState('');
   const [fetching, setFetching] = useState(false);
@@ -53,6 +56,41 @@ function AdminPanel() {
       console.error('Error fetching products:', err);
     } finally {
       setLoadingProducts(false);
+    }
+  }
+
+  async function handleSync() {
+    setSyncing(true);
+    setSyncStatus(null);
+    setSyncLogs([]);
+
+    try {
+      const response = await fetch('/api/cron/sync-ph', {
+        method: 'POST',
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        setSyncStatus({ 
+          type: 'success', 
+          message: `Sync complete! Processed ${result.processed || 0} products. ${result.hasMore ? 'More products remaining in queue.' : ''}` 
+        });
+        if (result.logs) {
+          setSyncLogs(result.logs);
+        }
+        fetchProducts();
+      } else {
+        setSyncStatus({ 
+          type: 'error', 
+          message: result.error || 'Sync failed' 
+        });
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Sync failed';
+      setSyncStatus({ type: 'error', message });
+    } finally {
+      setSyncing(false);
     }
   }
 
@@ -265,7 +303,7 @@ function AdminPanel() {
             onClick={() => setActiveTab('add')}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
               activeTab === 'add'
-                ? 'bg-gradient-to-r from-cyan-400 to-purple-500 text-white'
+                ? 'bg-gradient-to-r from-[#FF958C] to-[#EE85B5] text-white'
                 : 'bg-white/5 text-white/60 hover:bg-white/10'
             }`}
           >
@@ -273,10 +311,21 @@ function AdminPanel() {
             Add Product
           </button>
           <button
+            onClick={() => setActiveTab('sync')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+              activeTab === 'sync'
+                ? 'bg-gradient-to-r from-[#FF958C] to-[#EE85B5] text-white'
+                : 'bg-white/5 text-white/60 hover:bg-white/10'
+            }`}
+          >
+            <RefreshCw className="w-5 h-5" />
+            Sync
+          </button>
+          <button
             onClick={() => setActiveTab('export')}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
               activeTab === 'export'
-                ? 'bg-gradient-to-r from-cyan-400 to-purple-500 text-white'
+                ? 'bg-gradient-to-r from-[#FF958C] to-[#EE85B5] text-white'
                 : 'bg-white/5 text-white/60 hover:bg-white/10'
             }`}
           >
@@ -584,6 +633,104 @@ function AdminPanel() {
               </div>
             </GlassCard>
           </div>
+        )}
+
+        {activeTab === 'sync' && (
+          <GlassCard className="p-8 border-white/10">
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <RefreshCw className="w-5 h-5 text-[#FF958C]" />
+              Sync Products from Product Hunt
+            </h2>
+
+            <div className="space-y-6">
+              <div className="p-6 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-[#FF958C]/10">
+                    <RefreshCw className="w-6 h-6 text-[#FF958C]" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold mb-2">Automatic Sync</h3>
+                    <p className="text-white/60 text-sm mb-4">
+                      Products are automatically synced from Product Hunt every 6 hours via cron job. 
+                      Use the button below to manually trigger a sync.
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={handleSync}
+                        disabled={syncing}
+                        className="px-6 py-3 bg-gradient-to-r from-[#FF958C] to-[#EE85B5] rounded-xl font-bold text-white hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-2"
+                      >
+                        {syncing ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Syncing...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-5 h-5" />
+                            Sync Now
+                          </>
+                        )}
+                      </button>
+                      <span className="text-white/50 text-sm">
+                        Fetches latest products and runs AI scoring
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {syncStatus && (
+                <div className={`flex items-center gap-2 p-4 rounded-xl ${
+                  syncStatus.type === 'success' ? 'bg-green-500/10 border border-green-500/20' :
+                  syncStatus.type === 'error' ? 'bg-red-500/10 border border-red-500/20' :
+                  'bg-blue-500/10 border border-blue-500/20'
+                }`}>
+                  {syncStatus.type === 'success' ? (
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                  ) : syncStatus.type === 'error' ? (
+                    <XCircle className="w-5 h-5 text-red-400" />
+                  ) : (
+                    <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                  )}
+                  <span className={syncStatus.type === 'success' ? 'text-green-400' : 
+                    syncStatus.type === 'error' ? 'text-red-400' : 'text-blue-400'}>
+                    {syncStatus.message}
+                  </span>
+                </div>
+              )}
+
+              {syncLogs.length > 0 && (
+                <div className="p-4 bg-black/20 rounded-xl border border-white/10">
+                  <h4 className="text-white/70 text-sm font-medium mb-2">Sync Logs:</h4>
+                  <div className="max-h-48 overflow-y-auto space-y-1">
+                    {syncLogs.map((log, i) => (
+                      <p key={i} className="text-white/50 text-xs font-mono">{log}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-white/50 text-sm">Total Products</p>
+                  <p className="text-2xl font-bold text-white">{products.length}</p>
+                </div>
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-white/50 text-sm">Scored Products</p>
+                  <p className="text-2xl font-bold text-white">{products.filter(p => (p.score || 0) > 0).length}</p>
+                </div>
+                <div className="p-4 bg-white/5 rounded-xl border border-white/10">
+                  <p className="text-white/50 text-sm">Avg Score</p>
+                  <p className="text-2xl font-bold text-white">
+                    {products.length > 0 
+                      ? (products.filter(p => p.score).reduce((sum, p) => sum + (p.score || 0), 0) / products.filter(p => p.score).length || 0).toFixed(1)
+                      : '0'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </GlassCard>
         )}
       </div>
     </div>

@@ -13,7 +13,6 @@ import {
   Moon, 
   LayoutDashboard, 
   BarChart3, 
-  Settings, 
   Plus,
   ChevronDown
 } from 'lucide-react';
@@ -40,17 +39,7 @@ const navItems: NavItem[] = [
   { 
     label: 'Analytics', 
     href: '/analytics', 
-    icon: <BarChart3 className="w-5 h-5" />,
-    children: [
-      { label: 'Overview', href: '/analytics', icon: null },
-      { label: 'Trends', href: '/analytics/trends', icon: null },
-      { label: 'Scores', href: '/analytics/scores', icon: null },
-    ]
-  },
-  { 
-    label: 'Settings', 
-    href: '/settings', 
-    icon: <Settings className="w-5 h-5" /> 
+    icon: <BarChart3 className="w-5 h-5" />
   },
 ];
 
