@@ -39,7 +39,7 @@ export default function Dashboard() {
   async function fetchProducts() {
     if (IS_DEV_MODE) return;
     try {
-      const { data: items } = await client.models.Product.list({ limit: 500 });
+      const { data: items } = await client.models.Product.list({ limit: 1000 });
       setProducts(items.sort((a, b) =>
         new Date(b.launchDate || '').getTime() - new Date(a.launchDate || '').getTime()
       ));
