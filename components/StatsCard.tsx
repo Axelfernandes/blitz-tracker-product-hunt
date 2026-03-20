@@ -34,6 +34,7 @@ function AnimatedCounter({
     const [displayValue, setDisplayValue] = useState(0);
     const isNumeric = !isNaN(numericValue);
 
+
     useEffect(() => {
         if (!inView || !isNumeric) {
             setDisplayValue(numericValue);

@@ -9,7 +9,7 @@ import { Header } from "@/components/Header";
 try {
   const outputs = require('@/amplify_outputs.json');
   Amplify.configure(outputs, { ssr: true });
-} catch (e) {
+} catch {
   console.warn("Amplify SSR configuration skipped: amplify_outputs.json not found.");
 }
 

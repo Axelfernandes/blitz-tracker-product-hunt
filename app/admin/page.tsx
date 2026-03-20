@@ -7,7 +7,7 @@ import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '@/amplify/data/resource';
 import { GlassCard } from '@/components/GlassCard';
 import { Plus, Download, Calendar, Package, Loader2, CheckCircle, XCircle, Search, ArrowLeft, Save, Sparkles, RefreshCw } from 'lucide-react';
-import { extractProductSlug, fetchProductBySlug, getPrimaryCategory, type PHProduct } from '@/lib/ph-api';
+import { extractProductSlug, fetchProductBySlug, getPrimaryCategory } from '@/lib/ph-api';
 import { scoreProduct, type BlitzScore } from '@/lib/gemini';
 
 const client = generateClient<Schema>();
@@ -478,7 +478,7 @@ function AdminPanel() {
                     </div>
                     
                     <div className="p-3 bg-white/5 rounded-lg">
-                      <p className="text-white/70 text-sm italic">"{fetchedProduct.score.explanation}"</p>
+                      <p className="text-white/70 text-sm italic">&ldquo;{fetchedProduct.score.explanation}&rdquo;</p>
                     </div>
                   </div>
                 )}

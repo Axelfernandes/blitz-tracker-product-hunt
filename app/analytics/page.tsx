@@ -6,14 +6,12 @@ import type { Schema } from '@/amplify/data/resource';
 import { GlassCard } from '@/components/GlassCard';
 import { 
   TrendingUp, 
-  TrendingDown, 
   Package, 
   Award, 
   Zap, 
   Target,
   Users,
   ArrowUp,
-  ArrowDown,
   Minus,
   BarChart3,
   PieChart,

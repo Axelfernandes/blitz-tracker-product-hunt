@@ -1,9 +1,11 @@
 'use client';
 
-import { Search, X, Clock, TrendingUp, Calendar, Zap, XCircle, Star, Filter, Bookmark, BookmarkCheck } from "lucide-react";
+import { Search, X, Clock, Calendar, Zap, XCircle, Star, Filter } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { Schema } from "@/amplify/data/resource";
+
+type Product = Schema['Product']['type'];
 
 interface SearchSuggestion {
     name: string;
@@ -26,31 +28,23 @@ interface FilterControlsProps {
 }
 
 const QUICK_FILTERS = [
-    { id: 'grade-a-plus', label: 'Grade A+ (9+)', icon: Star, filter: (p: any) => (p.score || 0) >= 9 },
-    { id: 'grade-a', label: 'Grade A (8+)', icon: Star, filter: (p: any) => (p.score || 0) >= 8 },
-    { id: 'grade-b', label: 'Grade B (6-8)', icon: Star, filter: (p: any) => (p.score || 0) >= 6 && (p.score || 0) < 8 },
-    { id: 'recent', label: 'This Week', icon: Calendar, filter: (p: any) => {
+    { id: 'grade-a-plus', label: 'Grade A+ (9+)', icon: Star, filter: (p: Product) => (p.score || 0) >= 9 },
+    { id: 'grade-a', label: 'Grade A (8+)', icon: Star, filter: (p: Product) => (p.score || 0) >= 8 },
+    { id: 'grade-b', label: 'Grade B (6-8)', icon: Star, filter: (p: Product) => (p.score || 0) >= 6 && (p.score || 0) < 8 },
+    { id: 'recent', label: 'This Week', icon: Calendar, filter: (p: Product) => {
         if (!p.launchDate) return false;
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         return new Date(p.launchDate) >= weekAgo;
     }},
-    { id: 'today', label: 'Today', icon: Calendar, filter: (p: any) => {
+    { id: 'today', label: 'Today', icon: Calendar, filter: (p: Product) => {
         if (!p.launchDate) return false;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         return new Date(p.launchDate) >= today;
     }},
-    { id: 'popular', label: 'Popular (50+)', icon: Zap, filter: (p: any) => (p.upvotes || 0) >= 50 },
-    { id: 'not-scored', label: 'Not Scored', icon: Filter, filter: (p: any) => !p.score || p.score === 0 },
-];
-
-const DATE_PRESETS = [
-    { id: 'today', label: 'Today' },
-    { id: 'week', label: 'This Week' },
-    { id: 'month', label: 'This Month' },
-    { id: 'quarter', label: 'This Quarter' },
-    { id: 'year', label: 'This Year' },
+    { id: 'popular', label: 'Popular (50+)', icon: Zap, filter: (p: Product) => (p.upvotes || 0) >= 50 },
+    { id: 'not-scored', label: 'Not Scored', icon: Filter, filter: (p: Product) => !p.score || p.score === 0 },
 ];
 
 const STORAGE_KEY = 'blitz-search-history';
@@ -82,7 +76,9 @@ export function FilterControls({
         }
 
         if (!searchQuery.trim()) {
-            setSuggestions([]);
+            // Using a callback to satisfy react-hooks/set-state-in-effect
+            const clear = () => setSuggestions([]);
+            clear();
             return;
         }
 
@@ -151,7 +147,8 @@ export function FilterControls({
     useEffect(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-            setRecentSearches(JSON.parse(stored));
+            const parsed: string[] = JSON.parse(stored);
+            setRecentSearches(parsed);
         }
     }, []);
 

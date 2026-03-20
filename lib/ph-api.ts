@@ -75,7 +75,7 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
       throw new Error(`PH API Unexpected Response: ${JSON.stringify(json)}`);
     }
 
-    return json.data.posts.edges.map((edge: any) => ({
+    return json.data.posts.edges.map((edge: { node: PHProduct }) => ({
       ...edge.node,
       votesCount: edge.node.votesCount
     }));
@@ -160,7 +160,7 @@ export async function fetchProductBySlug(slug: string): Promise<PHProduct | null
 
 export function getProductCategories(product: PHProduct): string[] {
   if (!product.topics?.edges) return [];
-  return product.topics.edges.map((edge: any) => edge.node.name);
+  return product.topics.edges.map((edge: { node: { name: string; slug: string } }) => edge.node.name);
 }
 
 export function getPrimaryCategory(product: PHProduct): string | null {

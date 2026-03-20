@@ -1,5 +1,8 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Schema } from "@/amplify/data/resource";
+
+type Product = Schema['Product']['type'];
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -32,7 +35,7 @@ export function getScoreGrade(score: number): string {
 }
 
 // Filter products by search query
-export function filterBySearch(products: any[], query: string): any[] {
+export function filterBySearch(products: Product[], query: string): Product[] {
   if (!query.trim()) return products;
   const lowerQuery = query.toLowerCase();
   return products.filter(p =>
@@ -43,7 +46,7 @@ export function filterBySearch(products: any[], query: string): any[] {
 }
 
 // Filter products by score range
-export function filterByScoreRange(products: any[], min: number, max: number): any[] {
+export function filterByScoreRange(products: Product[], min: number, max: number): Product[] {
   return products.filter(p => {
     const score = p.score || 0;
     return score >= min && score <= max;
@@ -51,7 +54,7 @@ export function filterByScoreRange(products: any[], min: number, max: number): a
 }
 
 // Sort products
-export function sortProducts(products: any[], sortBy: string): any[] {
+export function sortProducts(products: Product[], sortBy: string): Product[] {
   const sorted = [...products];
 
   switch (sortBy) {
