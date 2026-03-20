@@ -4,18 +4,18 @@ import { X, Zap, Globe, Target, Share2, Rocket, ExternalLink, AlertCircle } from
 
 import { cn, getScoreColor } from "@/lib/utils";
 import { ScoreChart } from "./ScoreChart";
+import type { Schema } from "@/amplify/data/resource";
 
 interface ScoreModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: any;
+  product: Schema['Product']['type'] | null;
   loading?: boolean;
 }
 
 export function ScoreModal({ isOpen, onClose, product, loading }: ScoreModalProps) {
   if (!isOpen || !product) return null;
 
-  const hasScore = product.score !== undefined && product.score !== null;
   const scores = {
     speed: product.speedScore || 0,
     market: product.marketScore || 0,
@@ -93,7 +93,7 @@ export function ScoreModal({ isOpen, onClose, product, loading }: ScoreModalProp
                       {scores.overall}
                     </div>
                     <h3 className="text-xl font-semibold text-white mb-2">Blitzscaling Score</h3>
-                    <p className="text-white/70 italic text-center text-sm">"{scores.explanation}"</p>
+                    <p className="text-white/70 italic text-center text-sm">&ldquo;{scores.explanation}&rdquo;</p>
                   </div>
 
                   {/* Radar Chart */}

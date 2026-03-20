@@ -10,6 +10,7 @@ const schema = a.schema({
       thumbnailUrl: a.string(),
       launchDate: a.datetime(),
       upvotes: a.integer(),
+      category: a.string(),
       score: a.float(), // Overall blitz score
       // Individual scores stored as individual fields.
       speedScore: a.float(),
@@ -22,7 +23,7 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       // Allow public creation/read for the sync route (apiKey)
-      allow.publicApiKey().to(['read', 'create']),
+      allow.publicApiKey().to(['read', 'create', 'update']),
       allow.authenticated().to(['read', 'create', 'update', 'delete']),
     ]),
 });

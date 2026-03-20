@@ -14,7 +14,7 @@ function AuthCallbackContent() {
 
     useEffect(() => {
         const code = searchParams.get('code');
-        const state = searchParams.get('state');
+        const _state = searchParams.get('state');
 
         if (code) {
             console.log('Product Hunt Auth Code received:', code);

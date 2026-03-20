@@ -63,8 +63,9 @@ export async function scoreProduct(
     const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     return JSON.parse(cleanText) as BlitzScore;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Gemini Scoring Error:", error);
-    throw new Error(`Gemini Scoring Error: ${error.message || JSON.stringify(error)}`);
+    const message = error instanceof Error ? error.message : JSON.stringify(error);
+    throw new Error(`Gemini Scoring Error: ${message}`);
   }
 }

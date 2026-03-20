@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { fetchDailyProducts } from '@/lib/ph-api';
+import { fetchDailyProducts, getPrimaryCategory } from '@/lib/ph-api';
 import { scoreProduct } from '@/lib/gemini';
 import { generateClient } from 'aws-amplify/data';
 import { Amplify } from 'aws-amplify';
@@ -58,11 +58,12 @@ export async function GET(request: NextRequest) {
     const outputs = require('@/amplify_outputs.json');
     Amplify.configure(outputs);
     console.log("Amplify configured.");
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("Amplify configuration failed:", e);
+    const message = e instanceof Error ? e.message : String(e);
     return NextResponse.json({
       error: "Amplify configuration missing.",
-      detailedError: e.message
+      detailedError: message
     }, { status: 500 });
   }
 
@@ -118,7 +119,8 @@ export async function GET(request: NextRequest) {
         if (score) {
           // Save
           console.log(`Saving ${p.name}...`);
-          const { data: created, errors: createErrors } = await client.models.Product.create({
+          const category = getPrimaryCategory(p);
+          const { errors: createErrors } = await client.models.Product.create({
             phId: p.id,
             name: p.name,
             tagline: p.tagline,
@@ -126,6 +128,7 @@ export async function GET(request: NextRequest) {
             thumbnailUrl: p.thumbnail.url,
             launchDate: p.createdAt,
             upvotes: p.votesCount,
+            category: category,
             score: score.overallScore,
             speedScore: score.speedScore,
             marketScore: score.marketScore,
@@ -143,9 +146,10 @@ export async function GET(request: NextRequest) {
             logs.push(`Saved ${p.name}`);
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         console.error(`Error processing ${p.name}:`, err);
-        logs.push(`Error processing ${p.name}: ${err.message}`);
+        logs.push(`Error processing ${p.name}: ${message}`);
       }
     }
 
@@ -157,8 +161,9 @@ export async function GET(request: NextRequest) {
       skipped: alreadyExistsCount,
       logs
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message, logs }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: message, logs }, { status: 500 });
   }
 }
 

@@ -1,0 +1,50 @@
+
+ampx sandbox
+
+Starts sandbox, watch mode for Amplify backend deployments
+
+Commands:
+  ampx sandbox delete            Deletes sandbox environment
+  ampx sandbox secret <command>  Manage sandbox secrets
+  ampx sandbox seed              Seeds sandbox environment
+
+Logs streaming
+      --stream-function-logs  Whether to stream function execution logs. Default
+                              : false. Use --logs-filter in addition to this fla
+                              g to stream specific function logs       [boolean]
+      --logs-filter           Regex pattern to filter logs from only matched fun
+                              ctions. E.g. to stream logs for a function, specif
+                              y it's name, and to stream logs from all functions
+                               starting with auth specify 'auth' Default: Stream
+                               all logs                                  [array]
+      --logs-out-file         File to append the streaming logs. The file is cre
+                              ated if it does not exist. Default: stdout[string]
+
+Options:
+      --debug            Print debug logs to the console
+                                                      [boolean] [default: false]
+      --dir-to-watch     Directory to watch for file changes. All subdirectories
+                          and files will be included. Defaults to the amplify di
+                         rectory.                                       [string]
+      --exclude          An array of paths or glob patterns to ignore. Paths can
+                          be relative or absolute and can either be files or dir
+                         ectories                                        [array]
+      --identifier       An optional identifier to distinguish between different
+                          sandboxes. Default is the name of the system user exec
+                         uting the process                              [string]
+      --outputs-format   amplify_outputs file format
+                  [string] [choices: "mjs", "json", "json-mobile", "ts", "dart"]
+      --outputs-version  Version of the configuration. Version 0 represents clas
+                         sic amplify-cli config file amplify-configuration and 1
+                          represents newer config file amplify_outputs
+       [string] [choices: "0", "1", "1.1", "1.2", "1.3", "1.4"] [default: "1.4"]
+      --outputs-out-dir  A path to directory where amplify_outputs is written. I
+                         f not provided defaults to current process working dire
+                         ctory.                                         [string]
+      --profile          An AWS profile name.                           [string]
+      --once             Execute a single sandbox deployment without watching fo
+                         r future file changes                         [boolean]
+  -h, --help             Show help                                     [boolean]
+
+[Error] Unknown argument: yes
+

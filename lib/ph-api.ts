@@ -9,6 +9,14 @@ export interface PHProduct {
   votesCount: number;
   createdAt: string;
   url: string;
+  topics?: {
+    edges: Array<{
+      node: {
+        name: string;
+        slug: string;
+      };
+    }>;
+  };
 }
 
 export async function fetchDailyProducts(): Promise<PHProduct[]> {
@@ -27,6 +35,14 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
             }
             votesCount
             createdAt
+            topics(first: 3) {
+              edges {
+                node {
+                  name
+                  slug
+                }
+              }
+            }
           }
         }
       }
@@ -59,7 +75,7 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
       throw new Error(`PH API Unexpected Response: ${JSON.stringify(json)}`);
     }
 
-    return json.data.posts.edges.map((edge: any) => ({
+    return json.data.posts.edges.map((edge: { node: PHProduct }) => ({
       ...edge.node,
       votesCount: edge.node.votesCount
     }));
@@ -68,4 +84,86 @@ export async function fetchDailyProducts(): Promise<PHProduct[]> {
     console.error("Failed to fetch PH products:", error);
     return [];
   }
+}
+
+export function extractProductSlug(url: string): string | null {
+  const match = url.match(/producthunt\.com\/posts\/([a-zA-Z0-9-]+)/);
+  return match ? match[1] : null;
+}
+
+export async function fetchProductBySlug(slug: string): Promise<PHProduct | null> {
+  const query = `
+    query GetPost($slug: String!) {
+      post(slug: $slug) {
+        id
+        name
+        tagline
+        description
+        url
+        thumbnail {
+          url
+        }
+        votesCount
+        createdAt
+        topics(first: 3) {
+          edges {
+            node {
+              name
+              slug
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  if (!process.env.PH_TOKEN) {
+    console.error("PH_TOKEN is missing");
+    return null;
+  }
+
+  try {
+    const res = await fetch("https://api.producthunt.com/v2/api/graphql", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.PH_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        query,
+        variables: { slug }
+      }),
+      cache: "no-store",
+    });
+
+    const json = await res.json();
+    if (json.errors) {
+      console.error("PH API Errors:", json.errors);
+      throw new Error(`PH API Errors: ${JSON.stringify(json.errors)}`);
+    }
+
+    if (!json.data || !json.data.post) {
+      return null;
+    }
+
+    const post = json.data.post;
+    return {
+      ...post,
+      votesCount: post.votesCount
+    };
+
+  } catch (error) {
+    console.error("Failed to fetch PH product:", error);
+    return null;
+  }
+}
+
+export function getProductCategories(product: PHProduct): string[] {
+  if (!product.topics?.edges) return [];
+  return product.topics.edges.map((edge: { node: { name: string; slug: string } }) => edge.node.name);
+}
+
+export function getPrimaryCategory(product: PHProduct): string | null {
+  const categories = getProductCategories(product);
+  return categories.length > 0 ? categories[0] : null;
 }
